@@ -40,15 +40,15 @@ class VF_CustomMenu_Model_Attribute
     public function getSourceAttributes()
     {
         $values = array(array('label' => '', 'value' => ''));
-        /** @var $layer Mage_Catalog_Model_Layer */
-        Mage::app()->setCurrentStore(Mage_Core_Model_Store::DEFAULT_CODE);
-        $layer = Mage::getModel('catalog/layer');
-        $attributes = $layer->getFilterableAttributes();
-        Mage::app()->setCurrentStore(Mage_Core_Model_Store::ADMIN_CODE);
-        foreach ($attributes as $_attribute) {
-            $values[$_attribute->getAttributeCode()] = array(
-                'label' => $_attribute->getFrontendLabel(),
-                'value' => $_attribute->getAttributeCode()
+        $cAttributes = Mage::getResourceModel('catalog/product_attribute_collection')
+            ->setItemObjectClass('catalog/resource_eav_attribute')
+            ->addStoreLabel(Mage::app()->getStore()->getId())
+            ->addFieldToFilter('additional_table.is_filterable', array('gt' => 0));
+        foreach($cAttributes as $oAttribute){
+            /* @var $oAttribute Mage_Catalog_Model_Entity_Attribute */
+            $values[$oAttribute->getAttributeCode()] = array(
+                'label' => $oAttribute->getStoreLabel(),
+                'value' => $oAttribute->getAttributeCode(),
             );
         }
         ksort($values);
