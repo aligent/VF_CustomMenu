@@ -72,6 +72,16 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Grid extends Mage_Adminhtml_Block_Widge
             'index'     => 'item_id'
         ));
 
+        $this->addColumn('store_id', array(
+            'header'    => $this->__('Store'),
+            'align'     =>'left',
+            'width'     => '100px',
+            'index'     => 'store_id',
+            'sortable'  => false,
+            'type'      => 'options',
+            'options'   => Mage::getModel('core/store')->getCollection()->toOptionHash(),
+        ));
+
         $this->addColumn('label', array(
             'header'    => $this->__('Label'),
             'align'     => 'left',

@@ -54,6 +54,12 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             array('legend' => $this->__('Menu Item'))
         );
 
+        $fieldSet->addField('store_id', 'select', array(
+            'label'     => $this->__('Store'),
+            'name'      => 'store_id',
+            'values'    => Mage::getModel('core/store')->getCollection()->toOptionHash(),
+        ));
+
         $fieldSet->addField('label', 'text', array(
             'label'     => $this->__('Label'),
             'class'     => 'required-entry',

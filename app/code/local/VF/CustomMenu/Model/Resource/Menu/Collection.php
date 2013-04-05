@@ -41,4 +41,27 @@ class VF_CustomMenu_Model_Resource_Menu_Collection extends Mage_Core_Model_Mysql
     {
         $this->_init('menu/menu');
     }
+
+    /**
+     * Add Filter by store
+     *
+     * @param int|Mage_Core_Model_Store $store
+     * @return VF_CustomMenu_Model_Resource_Menu_Collection
+     */
+    public function addStoreFilter($store = null) {
+        if ($store === null){
+            $store = Mage::app()->getStore()->getId();
+        }
+        if (!Mage::app()->isSingleStoreMode()) {
+            if ($store instanceof Mage_Core_Model_Store) {
+                $store = $store->getId();
+            }
+
+            $this->getSelect()
+                ->where('main_table.store_id in (?)', array(0, $store));
+
+            return $this;
+        }
+        return $this;
+    }
 }

@@ -61,6 +61,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     public function getMenuItems()
     {
         $collection = Mage::getModel('menu/menu')->getCollection()
+            ->addStoreFilter()
             ->setOrder('position', 'asc');
         return $collection;
     }
