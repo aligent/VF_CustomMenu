@@ -29,6 +29,7 @@
  * @method string getUrl
  * @method string getTitle
  * @method string getLabel
+ * @method string getStoreId
  *
  * @category   VF
  * @package    VF_CustomMenu
@@ -37,6 +38,8 @@
  */
 class VF_CustomMenu_Model_Menu extends Mage_Core_Model_Abstract
 {
+    const CACHE_TAG = 'custommenu';
+
     /**
      * Initialize resources
      *
@@ -44,6 +47,8 @@ class VF_CustomMenu_Model_Menu extends Mage_Core_Model_Abstract
      */
     protected function _construct()
     {
+        $this->_eventPrefix = 'custommenu';  //so that we can clear the Varnish cache
+        $this->_cacheTag = self::CACHE_TAG;  //so that the Mage_Core_Model_Abstract::cleanModelCache method can find our backend cache objects
         $this->_init('menu/menu');
     }
 

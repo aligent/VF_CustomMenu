@@ -36,7 +36,11 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $this->addData(array(
             'cache_lifetime' => 86400,
-            'cache_tags' => array(Mage_Catalog_Model_Category::CACHE_TAG, Mage_Core_Model_Store_Group::CACHE_TAG),
+            'cache_tags' => array(
+                Mage_Catalog_Model_Category::CACHE_TAG,
+                Mage_Core_Model_Store_Group::CACHE_TAG,
+                VF_CustomMenu_Model_Menu::CACHE_TAG
+            ),
         ));
     }
 
