@@ -13,7 +13,6 @@ You can choose from this types of menu items:
 Read about installation in [INSTALL](https://github.com/hws47a/VF_CustomMenu/blob/master/INSTALL) file
 
 More info:
-* Menu is cached by the 'Block HTML' cache;
-* Extension doesn't support a separate edit data for multiple stores  
+* Menu is cached by the 'Blocks HTML output' cache;
+* Extension supports multiple stores  
   
-CURRENTLY IT WORKS ON 1 MY PROJECT
