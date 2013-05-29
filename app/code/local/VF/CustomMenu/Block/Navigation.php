@@ -110,7 +110,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $block = $this->_getDynamicBlockList($items, $itemNumber);
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
-                    if ($item->getShowChildren()) {
+                    if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
                         $items = $this->_getCategoryItems($item);
                         $block = $this->_getDynamicBlockList($items, $itemNumber);
                     }
@@ -130,17 +130,28 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     protected function _getCategoryItems(VF_CustomMenu_Model_Menu $item)
     {
         $items = array();
-        /** @var $category Mage_Catalog_Model_Category */
-        $category = Mage::getModel('catalog/category')->load($item->getDefaultCategory());
-        if ($category->getId()) {
-            $categories = $category->getChildrenCategories();
+        /** @var $oParentCategory Mage_Catalog_Model_Category */
+        $oParentCategory = Mage::getModel('catalog/category')->load($item->getDefaultCategory());
+        $iCurrentCategoryId = false;
+        if(Mage::registry('current_category')){
+            $iCurrentCategoryId = Mage::registry('current_category')->getId();
+        }
+        if ($oParentCategory->getId()) {
+            $categories = $oParentCategory->getCategories($oParentCategory->getId(),true,false,true,true);
             $items = array();
-            $level = $category->getLevel() + 1;
-            foreach ($categories as $_category) {
-                if ($_category->getLevel() == $level) {
+            $level = $oParentCategory->getLevel() + 1;
+            foreach ($categories as $oChildCategory) {
+                /** @var $oChildCategory Mage_Catalog_Model_Category */
+                if ($oChildCategory->getLevel() == $level) {
+                    $bIsCurrent = false;
+                    if($oChildCategory->getId() === $iCurrentCategoryId){
+                        $bIsCurrent = true;
+                        $item->setData('current',true);
+                    }
                     $items[] = array(
-                        'label' => $_category->getName(),
-                        'href' => $_category->getUrl()
+                        'label' => $oChildCategory->getName(),
+                        'href' => $oChildCategory->getUrl(),
+                        'current' => $bIsCurrent,
                     );
                 }
             }
@@ -226,6 +237,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 } elseif ($index == $count) {
                     $class .= ' last';
                 }
+                if(isset($_item['current']) && $_item['current'] == true){
+                    $class .= ' current';
+                }
                 $odd ^= 1;
                 $class = " class=\"level1 $class\"";
 
@@ -236,4 +250,25 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         }
         return $block;
     }
+
+    public function isCurrent(VF_CustomMenu_Model_Menu $item, $itemNumber = null){
+        switch ($item->getType()) {
+            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
+                $this->getDynamicBlock($item,$itemNumber);
+                if($item->getCurrent() == true){
+                    return true;
+                }
+                break;
+            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_INTERNAL:
+                $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
+                $bIsCurrent = (strcmp($vCurrentUrl,$this->getItemUrl($item))===0);
+                return $bIsCurrent;
+                break;
+            default:
+                return false;
+                break;
+            //TODO: implement for Attribute
+        }
+    }
+
 }
