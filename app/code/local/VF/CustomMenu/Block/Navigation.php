@@ -51,10 +51,16 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
      */
     public function getCacheKeyInfo()
     {
-        return array(
+        $aKeys = array(
             'CATALOG_NAVIGATION',
             Mage::app()->getStore()->getId(),
         );
+        //if this block is being viewed on a category page, add the ID of that category to the cache key
+        if(Mage::registry('current_category')){
+            $aKeys[] = Mage::registry('current_category')->getId();
+        }
+
+	return $aKeys;
     }
 
     /**
