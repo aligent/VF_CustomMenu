@@ -139,10 +139,14 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         /** @var $oParentCategory Mage_Catalog_Model_Category */
         $oParentCategory = Mage::getModel('catalog/category')->load($item->getDefaultCategory());
         $iCurrentCategoryId = false;
+        $bIsCurrent = false;
         if(Mage::registry('current_category')){
             $iCurrentCategoryId = Mage::registry('current_category')->getId();
         }
         if ($oParentCategory->getId()) {
+            if($oParentCategory->getId() == $iCurrentCategoryId){
+                $item->setData('current',true);
+            }
             $categories = $oParentCategory->getCategories($oParentCategory->getId(),true,false,true,true);
             $items = array();
             $level = $oParentCategory->getLevel() + 1;
