@@ -147,23 +147,23 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             if($oParentCategory->getId() == $iCurrentCategoryId){
                 $item->setData('current',true);
             }
-            $categories = $oParentCategory->getCategories($oParentCategory->getId(),true,false,true,true);
+            $categories = $oParentCategory->getCategories($oParentCategory->getId(),null,false,true,false);
+            $iLevel = $oParentCategory->getLevel() + 1;
+            $categories->addAttributeToFilter('level', $iLevel); //only retrieve immediate children of the selected category
+            $categories->load();
             $items = array();
-            $level = $oParentCategory->getLevel() + 1;
             foreach ($categories as $oChildCategory) {
                 /** @var $oChildCategory Mage_Catalog_Model_Category */
-                if ($oChildCategory->getLevel() == $level) {
-                    $bIsCurrent = false;
-                    if($oChildCategory->getId() === $iCurrentCategoryId){
-                        $bIsCurrent = true;
-                        $item->setData('current',true);
-                    }
-                    $items[] = array(
-                        'label' => $oChildCategory->getName(),
-                        'href' => $oChildCategory->getUrl(),
-                        'current' => $bIsCurrent,
-                    );
+                $bIsCurrent = false;
+                if($oChildCategory->getId() === $iCurrentCategoryId){
+                    $bIsCurrent = true;
+                    $item->setData('current',true);
                 }
+                $items[] = array(
+                    'label' => $oChildCategory->getName(),
+                    'href' => $oChildCategory->getUrl(),
+                    'current' => $bIsCurrent,
+                );
             }
         }
         return $items;
