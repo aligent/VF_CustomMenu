@@ -147,7 +147,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             if($oParentCategory->getId() == $iCurrentCategoryId){
                 $item->setData('current',true);
             }
-            $categories = $oParentCategory->getCategories($oParentCategory->getId(),null,false,true,false);
+            $categories = $oParentCategory->getCategories($oParentCategory->getId(),null,'position',true,false);
             $iLevel = $oParentCategory->getLevel() + 1;
             $categories->addAttributeToFilter('level', $iLevel); //only retrieve immediate children of the selected category
             $categories->load();
