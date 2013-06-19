@@ -32,8 +32,11 @@
  */
 class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 {
+
+
     protected function _construct()
     {
+        $this->setRootCategoryId(Mage::app()->getStore()->getRootCategoryId());
         $this->addData(array(
             'cache_lifetime' => 86400,
             'cache_tags' => array(
@@ -91,6 +94,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_EXTERNAL:
                 return $url;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
+                if($item->getCategory()->getId() == $this->getRootCategoryId()){
+                    return Mage::getBaseUrl();
+                }
                 return $item->getCategory()->getUrl();
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                 return 'javascript:;';
