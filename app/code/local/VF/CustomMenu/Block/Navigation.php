@@ -148,6 +148,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         $bIsCurrent = false;
         if(Mage::registry('current_category')){
             $iCurrentCategoryId = Mage::registry('current_category')->getId();
+            $aParentCategories = Mage::registry('current_category')->getParentIds();
         }
         if ($oParentCategory->getId()) {
             if($oParentCategory->getId() == $iCurrentCategoryId){
@@ -161,7 +162,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             foreach ($categories as $oChildCategory) {
                 /** @var $oChildCategory Mage_Catalog_Model_Category */
                 $bIsCurrent = false;
-                if($oChildCategory->getId() === $iCurrentCategoryId){
+                if($oChildCategory->getId() === $iCurrentCategoryId ||
+                    (!empty($aParentCategories) && in_array($oChildCategory->getId(),$aParentCategories,true))
+                ){
                     $bIsCurrent = true;
                     $item->setData('current',true);
                 }
