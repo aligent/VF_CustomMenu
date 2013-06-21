@@ -97,6 +97,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 if($item->getCategory()->getId() == $this->getRootCategoryId()){
                     return Mage::getBaseUrl();
                 }
+                if($url){
+                    return Mage::getBaseUrl() . $url; // allow override of category URL
+                }
                 return $item->getCategory()->getUrl();
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                 return 'javascript:;';
@@ -273,6 +276,11 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     public function isCurrent(VF_CustomMenu_Model_Menu $item, $itemNumber = null){
         switch ($item->getType()) {
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
+                $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
+                $bIsCurrent = (strcmp($vCurrentUrl,$this->getItemUrl($item))===0);
+                if($bIsCurrent){
+                    return true;
+                }
                 $this->getDynamicBlock($item,$itemNumber);
                 if($item->getCurrent() == true){
                     return true;

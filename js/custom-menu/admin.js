@@ -12,7 +12,6 @@ function customMenuUpdateFields(type) {
             $('show_children').up('tr').hide();
             break;
         case 3: //category
-            $('url').up('tr').hide();
             $('url').removeClassName('required-entry');
             $('default_category').up('tr').show();
             $('default_category').addClassName('required-entry');

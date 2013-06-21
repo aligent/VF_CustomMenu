@@ -53,7 +53,8 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Grid_Renderer_Info
                 return '<strong>' . $helper->__('Category') . ':</strong> '
                     . Mage::getModel('catalog/category')->load($row->getDefaultCategory(), array('name'))->getName()
                     . ' <strong>' . $helper->__('Show Children') . ':</strong> '
-                    . ($row->getShowChildren() ? $helper->__('Yes') : $helper->__('No'));
+                    . ($row->getShowChildren() ? $helper->__('Yes') : $helper->__('No'))
+                    . ($row->getUrl() ? ' <strong>' . $helper->__('Path') . ':</strong> ' . $row->getUrl() : '');
                 break;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                 return '<strong>' . $helper->__('Attribute code') . ':</strong> '

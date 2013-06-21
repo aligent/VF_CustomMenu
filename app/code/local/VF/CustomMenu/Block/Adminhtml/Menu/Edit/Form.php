@@ -79,7 +79,7 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'label'     => $this->__('Url'),
             'name'      => 'url',
             'note'      => $this->__(
-                'Url without base url. Example: for url link http://www.domain.com/test-page.html use test-page.html'
+               'Url without base url. To display "http://www.domain.com/test-page.html", enter "test-page.html". Leave blank to use default category URL'
             )
         ));
 
