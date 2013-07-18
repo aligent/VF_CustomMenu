@@ -285,6 +285,20 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 if($item->getCurrent() == true){
                     return true;
                 }
+                if(Mage::registry('current_product')){  //on a product page
+                    /** @var $oProduct Mage_Catalog_Model_Product */
+                    $oProduct = Mage::registry('current_product');
+                    //count all the categories that this product is assigned to
+                    $iNumAllProductCategories = count($oProduct->getCategoryIds());
+                    //now find categories this product is assigned to that are in the same hierarchy as the current Menu item
+                    $cCurrentProductCategories = $oProduct->getCategoryCollection()
+                        ->addPathFilter($item->getCategory()->getId());  //argument to this call is a regex, so matches ancestors and descendants
+                    $iNumCurrentCategories = count($cCurrentProductCategories);
+                    if($iNumAllProductCategories == $iNumCurrentCategories){
+                        //the product is assigned only to categories that are related to the current Menu item
+                        return true;
+                    }
+                }
                 break;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_INTERNAL:
                 $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
