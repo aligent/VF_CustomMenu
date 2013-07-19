@@ -57,10 +57,23 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         $aKeys = array(
             'CATALOG_NAVIGATION',
             Mage::app()->getStore()->getId(),
+            Mage::getDesign()->getPackageName(),
+            Mage::getDesign()->getTheme('template'),
+            Mage::getSingleton('customer/session')->getCustomerGroupId(),
+            'template' => $this->getTemplate(),
+            'name' => $this->getNameInLayout(),
         );
         //if this block is being viewed on a category page, add the ID of that category to the cache key
         if(Mage::registry('current_category')){
             $aKeys[] = Mage::registry('current_category')->getId();
+        }
+        //if this block is being viewed on a CMS page
+        if(Mage::app()->getRequest()->getModuleName() == 'cms'){
+            if($this->getMenuItems()->getItemByColumnValue('url', ltrim($this->getRequest()->getPathInfo(),'/'))){
+                //if the current URL matches a link in the Navigation menu items, add that as a cache key
+                $aKeys[] = Mage::getSingleton('cms/page')->getIdentifier();
+            }
+
         }
 
 	return $aKeys;
@@ -162,6 +175,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $categories->addAttributeToFilter('level', $iLevel); //only retrieve immediate children of the selected category
             $categories->load();
             $items = array();
+            if(count($categories) === 0){
+                Mage::logException(new Exception('Found no child categories for ' . $item->getLabel()));
+            }
             foreach ($categories as $oChildCategory) {
                 /** @var $oChildCategory Mage_Catalog_Model_Category */
                 $bIsCurrent = false;
