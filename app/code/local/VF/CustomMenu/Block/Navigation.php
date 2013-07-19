@@ -310,8 +310,12 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $cCurrentProductCategories = $oProduct->getCategoryCollection()
                         ->addPathFilter($item->getCategory()->getId());  //argument to this call is a regex, so matches ancestors and descendants
                     $iNumCurrentCategories = count($cCurrentProductCategories);
-                    if($iNumAllProductCategories == $iNumCurrentCategories){
+                    if($iNumAllProductCategories == $iNumCurrentCategories && $item->getIsCurrentExclusive()){
                         //the product is assigned only to categories that are related to the current Menu item
+                        return true;
+                    }
+                    else if($iNumCurrentCategories && !$item->getIsCurrentExclusive()){
+                        //this product exists in at least one of the child categories of the current menu item and the menu item is not exclusive
                         return true;
                     }
                 }

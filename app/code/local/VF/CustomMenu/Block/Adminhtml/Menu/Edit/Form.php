@@ -131,6 +131,15 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'checked'   => $showChildren
         ));
 
+        $fieldSet->addField('is_current_exclusive', 'select', array(
+            'label'     => $this->__('Is Current Exclusive'),
+            'name'      => 'is_current_exclusive',
+            'values'    => Mage::getSingleton('adminhtml/system_config_source_yesno')->toOptionArray(),
+            'note'      => $this->__(
+                'For this item to have the \'current\' classname applied on a PDP, that product must be assigned ONLY to this category or its children'
+            )
+        ));
+
         if ($data) {
             $form->setValues($data->getData());
         }
