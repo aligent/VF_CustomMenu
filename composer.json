@@ -1,0 +1,15 @@
+{
+    "name": "hws47a/vf-custom-menu",
+    "type": "magento-module",
+    "description": "A custom magento menu",
+    "license": "OSL 3.0",
+    "authors": [
+        {
+            "name": "Vladimir Fishchenko",
+            "email": "vladimir@fishchenko.com"
+        }
+    ],
+    "require": {
+
+    }
+}
