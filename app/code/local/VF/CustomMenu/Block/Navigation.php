@@ -33,6 +33,7 @@
 class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 {
 
+    protected $iCategoryRecursion = 1;
 
     protected function _construct()
     {
@@ -191,6 +192,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     'label' => $oChildCategory->getName(),
                     'href' => $oChildCategory->getUrl(),
                     'current' => $bIsCurrent,
+                    'has_children' => $oChildCategory->hasChildren()?'true':'',
+                    'default_category' => $oChildCategory->getId(),
                 );
             }
         }
@@ -256,15 +259,16 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
      * @param $itemNumber int it is added to 'nav' class
      * @return string
      */
-    protected function _getDynamicBlockList($items, $itemNumber)
+    protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0)
     {
         $block = '';
         if (!empty($items)) {
-            $block .= "<ul class='level0'>\n";
+            $block .= "<ul class='level$iLevel'>\n";
             $odd = false;
             $index = 0;
             $count = count($items);
             foreach ($items as $_item) {
+                /** @var $_item VF_CustomMenu_Model_Menu */
                 ++$index;
                 $class = ($odd) ? 'odd' : 'even';
                 if ($itemNumber) {
@@ -279,10 +283,17 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = " class=\"level1 $class\"";
+                $class = ' "class=level'.($iLevel+1).' '.$class.'"';
 
-                $block .= "<li{$class}><a href=\"{$_item['href']}\">"
-                    . "<span>{$this->escapeHtml($_item['label'])}</span></a></li>";
+                $block .= "<li{$class}><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
+
+                if($this->getCategoryRecursion()>$iLevel+1 && !empty($_item['has_children']))
+                {
+                    $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
+                    $block .=  $this->_getDynamicBlockList($aChildItems, $itemNumber. '-' . $index, $iLevel + 1);
+                }
+
+                $block .= "</li>";
             }
             $block .= "</ul>\n";
         }
@@ -330,6 +341,23 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 break;
             //TODO: implement for Attribute
         }
+    }
+
+    /**
+     * @param int $iCategoryRecursion
+     */
+    public function setCategoryRecursion($iCategoryRecursion)
+    {
+        $this->iCategoryRecursion = $iCategoryRecursion;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCategoryRecursion()
+    {
+        return $this->iCategoryRecursion;
     }
 
 }
