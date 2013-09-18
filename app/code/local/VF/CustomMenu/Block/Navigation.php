@@ -268,7 +268,6 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $index = 0;
             $count = count($items);
             foreach ($items as $_item) {
-                /** @var $_item VF_CustomMenu_Model_Menu */
                 ++$index;
                 $class = ($odd) ? 'odd' : 'even';
                 if ($itemNumber) {
