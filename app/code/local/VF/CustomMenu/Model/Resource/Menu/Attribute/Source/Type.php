@@ -29,6 +29,7 @@
  * @package    VF_CustomMenu
  * @subpackage Model
  * @author     Vladimir Fishchenko <vladimir.fishchenko@gmail.com>
+ * @author     Jonathan Day <jonathan@aligent.com.au>
  */
 class VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type
 {
@@ -36,6 +37,7 @@ class VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type
     const LINK_EXTERNAL = 2;
     const CATEGORY      = 3;
     const ATTRIBUTE     = 4;
+    const CMS_PAGE      = 5;
 
     /**
      * Get Menu Item Type Values
@@ -49,6 +51,7 @@ class VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type
             self::LINK_INTERNAL => $helper->__('Link Internal'),
             self::LINK_EXTERNAL => $helper->__('Link External'),
             self::CATEGORY      => $helper->__('Category'),
+            self::CMS_PAGE      => $helper->__('CMS Page'),
             self::ATTRIBUTE     => $helper->__('Attribute Values'),
         );
     }

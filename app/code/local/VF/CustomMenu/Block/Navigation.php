@@ -29,11 +29,12 @@
  * @package    VF_CustomMenu
  * @subpackage Block
  * @author     Vladimir Fishchenko <vladimir.fishchenko@gmail.com>
+ * @author     Jonathan Day <jonathan@aligent.com.au>
  */
 class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 {
 
-    protected $iCategoryRecursion = 1;
+    protected $iMaxRecursion = 1;
 
     protected function _construct()
     {
@@ -77,7 +78,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
         }
 
-	return $aKeys;
+        return $aKeys;
     }
 
     /**
@@ -114,7 +115,12 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 if($url){
                     return Mage::getBaseUrl() . $url; // allow override of category URL
                 }
-                return $item->getCategory()->getUrl();
+                else return $item->getCategory()->getUrl();
+            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
+                if($url){
+                    return Mage::getBaseUrl() . $url; // allow override of CMS Page URL
+                }
+                else return $item->getCmsPage()->getUrl();
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                 return 'javascript:;';
             default:
@@ -133,25 +139,52 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         if (!$item->hasData('dynamic_block')) {
             $block = '';
+            $items = array();
             switch ($item->getType()) {
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                     $items = $this->_getAttributeValueItems($item);
-                    $block = $this->_getDynamicBlockList($items, $itemNumber);
+                    break;
+                case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
+                    if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
+                        $items = $this->_getPageItems($item);
+                    }
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
                     if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
                         $items = $this->_getCategoryItems($item);
-                        $block = $this->_getDynamicBlockList($items, $itemNumber);
                     }
                     break;
             }
+            $block = $this->_getDynamicBlockList($items, $itemNumber);
             $item->setData('dynamic_block', $block);
         }
         return $item->getData('dynamic_block');
     }
 
+    public function _getPageItems(VF_CustomMenu_Model_Menu $item)
+    {
+        $items = array();
+        /** @var JR_CleverCms_Model_Cms_Page $oParentPage */
+        /** @var Mage_Cms_Model_Page $oParentPage */
+        $oParentPage = Mage::getModel('cms/page')->load($item->getCmsPageId());
+        if($oParentPage->getId() && $oParentPage->getIsActive()){
+            $cChildPages = $oParentPage->getChildren();
+            if(count($cChildPages)){
+                foreach($cChildPages as $oChildPage){
+                    $items[] = array(
+                        'label' => $oChildPage->getTitle(),
+                        'href' => $oChildPage->getUrl(),
+                        'has_children' => count($oChildPage->getChildren())?'true':'',
+                        'cms_page_id' => $oChildPage->getId(),
+                    );
+                }
+            }
+        }
+        return $items;
+    }
+
     /**
-     * get category children array with 'label' and 'href'
+     * get array of category children
      *
      * @param VF_CustomMenu_Model_Menu $item
      * @return array
@@ -286,10 +319,19 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
                 $block .= "<li{$class}><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
 
-                if($this->getCategoryRecursion()>$iLevel+1 && !empty($_item['has_children']))
+                if($this->getRecursionLevel()>$iLevel+1 && !empty($_item['has_children']))
                 {
-                    $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
-                    $block .=  $this->_getDynamicBlockList($aChildItems, $itemNumber. '-' . $index, $iLevel + 1);
+                    $aChildItems = array();
+                    if(isset($_item['default_category'])){
+                        $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
+                    }
+                    elseif(isset($_item['cms_page_id'])){
+                        $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
+                    }
+
+                    if(count($aChildItems)){
+                        $block .=  $this->_getDynamicBlockList($aChildItems, $itemNumber. '-' . $index, $iLevel + 1);
+                    }
                 }
 
                 $block .= "</li>";
@@ -343,20 +385,20 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     }
 
     /**
-     * @param int $iCategoryRecursion
+     * @param int $iRecursion
      */
-    public function setCategoryRecursion($iCategoryRecursion)
+    public function setRecursionLevel($iRecursion)
     {
-        $this->iCategoryRecursion = $iCategoryRecursion;
+        $this->iMaxRecursion = $iRecursion;
         return $this;
     }
 
     /**
      * @return int
      */
-    public function getCategoryRecursion()
+    public function getRecursionLevel()
     {
-        return $this->iCategoryRecursion;
+        return $this->iMaxRecursion;
     }
 
 }

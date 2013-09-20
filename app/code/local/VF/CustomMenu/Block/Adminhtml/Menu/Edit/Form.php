@@ -1,14 +1,14 @@
-<?php 
+<?php
 /**
  * VF extension for Magento
  *
  * NOTICE OF LICENSE
- * 
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
- * 
+ *
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade
@@ -29,6 +29,7 @@
  * @package    VF_CustomMenu
  * @subpackage Block
  * @author     Vladimir Fishchenko <vladimir.fishchenko@gmail.com>
+ * @author     Jonathan Day <jonathan@aligent.com.au>
  */
 class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_Widget_Form
 {
@@ -79,7 +80,7 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'label'     => $this->__('Url'),
             'name'      => 'url',
             'note'      => $this->__(
-               'Url without base url. To display "http://www.domain.com/test-page.html", enter "test-page.html". Leave blank to use default category URL'
+                'Url without base url. To display "http://www.domain.com/test-page.html", enter "test-page.html". Leave blank to use default item URL'
             )
         ));
 
@@ -98,7 +99,7 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'label'     => $this->__('Source Attribute'),
             'name'      => 'source_attribute',
             'note'      => $this->__('If you select attribute, '
-                . 'you will see dropdown with its values for layered navigation'),
+            . 'you will see dropdown with its values for layered navigation'),
             'values'    => Mage::getModel('menu/attribute')->getSourceAttributes()
         ));
 
@@ -116,6 +117,20 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'label'     => $this->__('Category'),
             'name'      => 'default_category',
             'note'      => $this->__('Custom default category'),
+            'values'    => $values
+        ));
+
+        /** @var $cCmsPages Mage_Cms_Model_Resource_Page_Collection */
+        $cCmsPages = Mage::getModel('cms/page')->getCollection();
+        $values = array(array('label' => '', 'value' => ''));
+        foreach ($cCmsPages as $oPage) {
+            $iPageId = $oPage->getId();
+            $values[] = array('value' => $iPageId, 'label' => $oPage->getTitle() . " ($iPageId)");
+        }
+
+        $fieldSet->addField('cms_page_id', 'select', array(
+            'label'     => $this->__('CMS Page'),
+            'name'      => 'cms_page_id',
             'values'    => $values
         ));
 
