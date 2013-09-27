@@ -315,7 +315,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = ' "class=level'.($iLevel+1).' '.$class.'"';
+                $class = ' class="level'.($iLevel+1).' '.$class.'"';
 
                 $block .= "<li{$class}><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
 
