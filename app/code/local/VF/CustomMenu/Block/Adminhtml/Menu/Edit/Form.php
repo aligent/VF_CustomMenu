@@ -155,6 +155,15 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             )
         ));
 
+        $fieldSet->addField('static_block', 'select', array(
+            'label'     => $this->__('Static Block'),
+            'name'      => 'static_block',
+            'values'    => Mage::getSingleton('catalog/category_attribute_source_page')->getAllOptions(),
+            'note'      => $this->__(
+                'Display content from the selected static block on this navigation item'
+            )
+        ));
+
         if ($data) {
             $form->setValues($data->getData());
         }
