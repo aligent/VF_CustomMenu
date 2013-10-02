@@ -109,11 +109,11 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_EXTERNAL:
                 return $url;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
-                if($item->getCategory()->getId() == $this->getRootCategoryId()){
-                    return Mage::getBaseUrl();
-                }
                 if($url){
                     return Mage::getBaseUrl() . $url; // allow override of category URL
+                }
+                if($item->getCategory()->getId() == $this->getRootCategoryId()){
+                    return Mage::getBaseUrl();
                 }
                 else return $item->getCategory()->getUrl();
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
