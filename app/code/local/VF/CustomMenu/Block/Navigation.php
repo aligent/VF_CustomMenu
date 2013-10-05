@@ -44,6 +44,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             'cache_tags' => array(
                 Mage_Catalog_Model_Category::CACHE_TAG,
                 Mage_Core_Model_Store_Group::CACHE_TAG,
+                Mage_Cms_Model_Page::CACHE_TAG,
                 VF_CustomMenu_Model_Menu::CACHE_TAG
             ),
         ));
@@ -71,11 +72,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         }
         //if this block is being viewed on a CMS page
         if(Mage::app()->getRequest()->getModuleName() == 'cms'){
-            if($this->getMenuItems()->getItemByColumnValue('url', ltrim($this->getRequest()->getPathInfo(),'/'))){
-                //if the current URL matches a link in the Navigation menu items, add that as a cache key
-                $aKeys[] = Mage::getSingleton('cms/page')->getIdentifier();
-            }
-
+            $aKeys[] = Mage::getSingleton('cms/page')->getIdentifier();
         }
 
         return $aKeys;
