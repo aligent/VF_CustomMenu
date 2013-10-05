@@ -30,6 +30,7 @@
  * @method string getTitle
  * @method string getLabel
  * @method string getStoreId
+ * @method string getStaticBlock
  *
  * @category   VF
  * @package    VF_CustomMenu
