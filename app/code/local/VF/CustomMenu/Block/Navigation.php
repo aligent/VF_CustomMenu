@@ -170,12 +170,19 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         if($oParentPage->getId() && $oParentPage->getIsActive()){
             $cChildPages = $oParentPage->getChildren();
             if(count($cChildPages)){
+                $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
                 foreach($cChildPages as $oChildPage){
+                    /* @var $oChildPage Mage_Cms_Model_Page */
+                    $bIsCurrent = (strcmp($vCurrentUrl,$oChildPage->getUrl())===0);
+                    if($bIsCurrent){
+                        $item->setData('current',true);
+                    }
                     $items[] = array(
                         'label' => $oChildPage->getTitle(),
                         'href' => $oChildPage->getUrl(),
                         'has_children' => count($oChildPage->getChildren())?'true':'',
                         'cms_page_id' => $oChildPage->getId(),
+                        'current' => $bIsCurrent
                     );
                 }
             }
@@ -374,6 +381,17 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                         //this product exists in at least one of the child categories of the current menu item and the menu item is not exclusive
                         return true;
                     }
+                }
+                break;
+            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
+                $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
+                $bIsCurrent = (strcmp($vCurrentUrl,$this->getItemUrl($item))===0);
+                if($bIsCurrent){
+                    return true;
+                }
+                $this->getDynamicBlock($item,$itemNumber);
+                if($item->getCurrent() == true){
+                    return true;
                 }
                 break;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_INTERNAL:
