@@ -165,7 +165,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         /** @var Mage_Cms_Model_Page $oParentPage */
         $oParentPage = Mage::getModel('cms/page')->load($item->getCmsPageId());
         if($oParentPage->getId() && $oParentPage->getIsActive()){
-            $cChildPages = $oParentPage->getChildren();
+            $cChildPages = $oParentPage->getChildren()
+                ->addFieldToFilter('is_active', array('eq' => 1))
+                ->addFieldToFilter('include_in_menu', array('eq' => 1));
             if(count($cChildPages)){
                 $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
                 foreach($cChildPages as $oChildPage){
