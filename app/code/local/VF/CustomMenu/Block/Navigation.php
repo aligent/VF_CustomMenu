@@ -102,6 +102,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         $url = ltrim($item->getUrl());
         switch ($item->getType()) {
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_INTERNAL:
+                if ($url === '/') $url = '';
                 return Mage::getBaseUrl() . $url;
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::LINK_EXTERNAL:
                 return $url;
@@ -116,8 +117,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
                 if($url){
                     return Mage::getBaseUrl() . $url; // allow override of CMS Page URL
+                } else {
+                    return Mage::getBaseUrl() . $item->getCmsPage()->getIdentifier();
                 }
-                else return $item->getCmsPage()->getUrl();
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                 return 'javascript:;';
             default:
