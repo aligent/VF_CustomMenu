@@ -55,11 +55,19 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             array('legend' => $this->__('Menu Item'))
         );
 
-        $fieldSet->addField('store_id', 'select', array(
-            'label'     => $this->__('Store'),
-            'name'      => 'store_id',
-            'values'    => Mage::getModel('core/store')->getCollection()->toOptionHash(),
+
+
+        $field =$fieldSet->addField('store_id', 'multiselect', array(
+            'name'      => 'store_id[]',
+            'label'     => Mage::helper('cms')->__('Store View'),
+            'title'     => Mage::helper('cms')->__('Store View'),
+            'required'  => true,
+            'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, true),
         ));
+        $renderer = $this->getLayout()->createBlock('adminhtml/store_switcher_form_renderer_fieldset_element');
+        $field->setRenderer($renderer);
+
+
 
         $fieldSet->addField('label', 'text', array(
             'label'     => $this->__('Label'),
