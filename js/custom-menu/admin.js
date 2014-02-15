@@ -26,8 +26,6 @@ function customMenuUpdateFields(type) {
         case 4: //attribute values
             $('url').up('tr').hide();
             $('url').removeClassName('required-entry');
-            $('default_category').up('tr').hide();
-            $('default_category').removeClassName('required-entry');
             $('cms_page_id').up('tr').hide();
             $('cms_page_id').removeClassName('required-entry');
             $('source_attribute').up('tr').show();
