@@ -84,5 +84,14 @@
             </updates>
         </layout>
     </adminhtml>
+    <frontend>
+        <layout>
+            <updates>
+                <vf_menu>
+                    <file>vf_menu.xml</file>
+                </vf_menu>
+            </updates>
+        </layout>
+    </frontend>
 </config>
 
