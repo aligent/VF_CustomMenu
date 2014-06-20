@@ -154,7 +154,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     }
                     break;
             }
-            $block = $this->_getDynamicBlockList($items, $itemNumber, 0, $item->getStaticBlock());
+            $block = $this->_getDynamicBlockList($items, $itemNumber, 1, $item->getStaticBlock());
             $item->setData('dynamic_block', $block);
         }
         return $item->getData('dynamic_block');
@@ -304,7 +304,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $block = '';
         if (!empty($items)) {
-            $block .= "<ul class='level$iLevel'>\n";
+            $block .= "<div class='level-$iLevel-container'><ul class='level-$iLevel'>\n";
             $odd = false;
             $index = 0;
             $count = count($items);
@@ -323,9 +323,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = ' class="level'.($iLevel+1).' '.$class.'"';
+                $class = ' class="level'.($iLevel).' '.$class.'"';
 
-                $block .= "<li{$class}><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
+                $block .= "<li><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
 
                 if($this->getRecursionLevel()>$iLevel+1 && !empty($_item['has_children']))
                 {
@@ -348,7 +348,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $vStaticBlockHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($iStaticBlockId)->toHtml();
                 $block .= '<li class="static-block">'.$vStaticBlockHtml.'</li>';
             }
-            $block .= "</ul>\n";
+            $block .= "</ul></div>\n";
         }
         return $block;
     }
