@@ -125,6 +125,10 @@ class VF_CustomMenu_Adminhtml_MenuController extends Mage_Adminhtml_Controller_A
                     $data['store_id'] = implode(',', $data['store_id']);
                 }
 
+                if (isset($data['widgets']) && is_array($data['widgets'])) {
+                    $data['widgets'] = implode(',', $data['widgets']);
+                }
+
                 $model->setData($data);
 
                 if ($menuId) {

@@ -154,7 +154,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     }
                     break;
             }
-            $block = $this->_getDynamicBlockList($items, $itemNumber, 1, $item->getStaticBlock());
+            $block = $this->_getDynamicBlockList($items, $itemNumber, 1, $item->getStaticBlock(), $item->getWidgets());
             $item->setData('dynamic_block', $block);
         }
         return $item->getData('dynamic_block');
@@ -300,7 +300,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
      * @param $itemNumber int it is added to 'nav' class
      * @return string
      */
-    protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0, $iStaticBlockId = null)
+    protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0, $iStaticBlockId = null, $aWidgets = null)
     {
         $block = '';
         if (!empty($items)) {
@@ -344,10 +344,31 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
                 $block .= "</li>";
             }
-            if($iLevel===0 && $iStaticBlockId){
+            if($iLevel === 1 && $iStaticBlockId){
                 $vStaticBlockHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($iStaticBlockId)->toHtml();
                 $block .= '<li class="static-block">'.$vStaticBlockHtml.'</li>';
             }
+
+            if ($iLevel === 1 && $aWidgets) {
+                if (is_string($aWidgets)) {
+                    $aWidgets = explode(',', $aWidgets);
+                }
+
+                $sWidgetsBlock = $this->getWidgetsBlock() ? $this->getWidgetsBlock() : 'core/template';
+                $sWidgetsTemplate = $this->getWidgetsTemplate();
+
+                $oNewBlock = $this
+                    ->getLayout()
+                    ->createBlock($sWidgetsBlock)
+                    ->setTemplate($sWidgetsTemplate)
+                    ->setWidgetIds($aWidgets)
+                    ->setUsedColumns(count($items));
+
+                $block .= '<li class="widgets used-' . count($items) . '">';
+                $block .= $oNewBlock->toHtml();
+                $block .= '</li>';
+            }
+
             $block .= "</ul></div>\n";
         }
         return $block;
