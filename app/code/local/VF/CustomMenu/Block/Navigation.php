@@ -304,6 +304,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $block = '';
         if (!empty($items)) {
+            $block .= '<div class="expand-sub-menu"></div>';
             $block .= "<ul class='level$iLevel'>\n";
             $odd = false;
             $index = 0;
