@@ -172,6 +172,15 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             )
         ));
 
+        $fieldSet->addField('widgets', 'multiselect', array(
+            'label'     => $this->__('Widgets'),
+            'name'      => 'widgets[]',
+            'values'    => Mage::getSingleton('menu/widgets')->toOptionArray(),
+            'note'      => $this->__(
+                    'Display content from the selected widgets on this navigation item'
+                )
+        ));
+
         if ($data) {
             $form->setValues($data->getData());
         }
