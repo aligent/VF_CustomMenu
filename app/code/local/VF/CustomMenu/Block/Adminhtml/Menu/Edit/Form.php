@@ -111,6 +111,25 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'values'    => Mage::getModel('menu/attribute')->getSourceAttributes()
         ));
 
+        $fieldSet->addField('attribute_as_level_3', 'select', array(
+            'label'     => $this->__('Display Attribute Values as 3rd Level'),
+            'name'      => 'attribute_as_level_3',
+            'values'    => Mage::getSingleton('adminhtml/system_config_source_yesno')->toOptionArray(),
+            'note'      => $this->__(
+                    'Enable if you want attribute values to display as level 3 instead of 2 with custom level 2'
+                )
+        ));
+
+        $fieldSet->addField('attribute_level_2_name', 'text', array(
+            'label'     => $this->__('Attribute Level 2 Label'),
+            'name'      => 'attribute_level_2_name'
+        ));
+
+        $fieldSet->addField('attribute_level_2_url', 'text', array(
+            'label'     => $this->__('Attribute Level 2 Url'),
+            'name'      => 'attribute_level_2_url'
+        ));
+
 
         /** @var $categories Mage_Catalog_Model_Resource_Eav_Mysql4_Category_Collection */
         $categories = Mage::getModel('catalog/category')->getCollection();
@@ -161,6 +180,15 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'note'      => $this->__(
                 'For this item to have the \'current\' classname applied on a PDP, that product must be assigned ONLY to this category or its children'
             )
+        ));
+
+        $fieldSet->addField('disable_upper_links', 'select', array(
+            'label'     => $this->__('Disable Upper Links'),
+            'name'      => 'disable_upper_links',
+            'values'    => Mage::getSingleton('adminhtml/system_config_source_yesno')->toOptionArray(),
+            'note'      => $this->__(
+                    'Enable if you want only menu items at the deepest level to be links'
+                )
         ));
 
         $fieldSet->addField('static_block', 'select', array(
