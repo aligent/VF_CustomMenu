@@ -130,6 +130,14 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'name'      => 'attribute_level_2_url'
         ));
 
+        $fieldSet->addField('additional_classes', 'text', array(
+            'label'     => $this->__('Additional Classes'),
+            'name'      => 'additional_classes',
+            'note'      => $this->__(
+                    'Add custom css classes here separated by a space'
+                )
+        ));
+
 
         /** @var $categories Mage_Catalog_Model_Resource_Eav_Mysql4_Category_Collection */
         $categories = Mage::getModel('catalog/category')->getCollection();
