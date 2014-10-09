@@ -121,6 +121,10 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     return Mage::getBaseUrl() . $item->getCmsPage()->getIdentifier();
                 }
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
+                if ($url) {
+                    if ($url === '/') $url = '';
+                    return Mage::getBaseUrl() . $url;
+                }
                 return 'javascript:;';
             default:
                 return $url;
@@ -300,7 +304,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                         } else {
                             $href = $rootCategory->getUrl() . '?' . http_build_query($params['_query']);
                         }
-                        $_option['href'] = $href;
+                        $_option['href'] = $href . '&landing=1';
 
                         $items[] = $_option;
                     }

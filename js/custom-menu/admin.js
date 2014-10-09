@@ -17,6 +17,7 @@ function customMenuUpdateFields(type) {
             $('attribute_level_2_url').up('tr').hide();
             break;
         case 3: //category
+            $('url').up('tr').show();
             $('url').removeClassName('required-entry');
             $('default_category').up('tr').show();
             $('default_category').addClassName('required-entry');
@@ -30,7 +31,7 @@ function customMenuUpdateFields(type) {
             $('attribute_level_2_url').up('tr').hide();
             break;
         case 4: //attribute values
-            $('url').up('tr').hide();
+            $('url').up('tr').show();
             $('url').removeClassName('required-entry');
             $('cms_page_id').up('tr').hide();
             $('cms_page_id').removeClassName('required-entry');
@@ -42,6 +43,7 @@ function customMenuUpdateFields(type) {
             $('attribute_level_2_url').up('tr').show();
             break;
         case 5: //cms page
+            $('url').up('tr').show();
             $('url').removeClassName('required-entry');
             $('cms_page_id').up('tr').show();
             $('cms_page_id').addClassName('required-entry');
