@@ -300,12 +300,18 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                             'custom_menu_popup_update_item_url',
                             array('route' => $route, 'params' => $params, 'result' => $result)
                         );
+                        // Allow the URL to be set by an event listener
                         if ($result->getUrl()) {
-                            $href = $result->getUrl();
+                            $_option['href'] = $result->getUrl() . '&landing=1';
                         } else {
-                            $href = $rootCategory->getUrl() . '?' . http_build_query($params['_query']);
+                            // Determine if running CE or EE
+                            if(Mage::helper('core')->isModuleEnabled('Enterprise_UrlRewrite')) {
+                                $urlModel = Mage::getModel('menu/attribute_enterprise_url');
+                            } else {
+                                $urlModel = Mage::getModel('menu/attribute_url');
+                            }
+                            $_option['href'] = $urlModel->getAttributeUrl($attribute, $_option, $rootCategory);
                         }
-                        $_option['href'] = $href . '&landing=1';
 
                         $items[] = $_option;
                     }
