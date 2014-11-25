@@ -93,5 +93,15 @@
             </updates>
         </layout>
     </frontend>
+    <crontab>
+        <jobs>
+            <vf_menu_rewrites>
+                <schedule><cron_expr>0 3 * * *</cron_expr></schedule>
+                <run>
+                    <model>menu/cron::generateRewrites</model>
+                </run>
+            </vf_menu_rewrites>
+        </jobs>
+    </crontab>
 </config>
 
