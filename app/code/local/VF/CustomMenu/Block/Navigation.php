@@ -36,6 +36,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
     protected $iMaxRecursion = 1;
 
+    protected $_aAllChildMenuItems = null;
+
     protected function _construct()
     {
         $this->setRootCategoryId(Mage::app()->getStore()->getRootCategoryId());
@@ -87,6 +89,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $collection = Mage::getModel('menu/menu')->getCollection()
             ->addStoreFilter()
+            ->addFieldToFilter('parent_id', array('null' => true))
             ->setOrder('position', 'asc');
         return $collection;
     }
@@ -142,12 +145,12 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         if (!$item->hasData('dynamic_block')) {
             $block = '';
-            $items = array();
+            $items = $this->_getChildMenuItems($item);
             switch ($item->getType()) {
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                     if ($item->getData('attribute_as_level_3') == '1') {
                         $children = $this->_getAttributeValueItems($item);
-                        $items = array(
+                        $items = array_merge($items, array(
                             array(
                                 'label'                 => $item->getData('attribute_level_2_name'),
                                 'href'                  => $item->getData('attribute_level_2_url'),
@@ -157,20 +160,20 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                                 'is_attribute'          => true,
                                 'disable_upper_links'   => $item->getData('disable_upper_links'),
                             )
-                        );
+                        ));
                     } else {
-                        $items = $this->_getAttributeValueItems($item);
+                        $items = array_merge($items, $this->_getAttributeValueItems($item));
                     }
 
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
                     if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = $this->_getPageItems($item);
+                        $items = array_merge($items, $this->_getPageItems($item));
                     }
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
                     if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = $this->_getCategoryItems($item);
+                        $items = array_merge($items, $this->_getCategoryItems($item));
                     }
                     break;
             }
@@ -178,6 +181,35 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $item->setData('dynamic_block', $block);
         }
         return $item->getData('dynamic_block');
+    }
+
+    public function _getChildMenuItems(VF_CustomMenu_Model_Menu $item) {
+        if ($this->_aAllChildMenuItems === null) {
+            $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
+
+            $oMenus = Mage::getModel('menu/menu')->getCollection()
+                ->addFieldToFilter('parent_id', array('notnull' => true))
+                ->setOrder('position', VF_CustomMenu_Model_Resource_Menu_Collection::SORT_ORDER_ASC);
+
+            foreach ($oMenus as $oMenu) {
+                $vUrl = $this->getItemUrl($oMenu);
+
+                $this->_aAllChildMenuItems[$oMenu->getParentId()][] = array(
+                    'label'                 => $oMenu->getLabel(),
+                    'href'                  => $vUrl,
+                    'current'               => ($vCurrentUrl == $vUrl),
+                    'has_children'          => true,
+                    'is_attribute'          => false,
+                    'disable_upper_links'   => $oMenu->getDisableUpperLinks(),
+                );
+            }
+        }
+
+        if (array_key_exists($item->getId(), $this->_aAllChildMenuItems)) {
+            return $this->_aAllChildMenuItems[$item->getId()];
+        } else {
+            return array();
+        }
     }
 
     public function _getPageItems(VF_CustomMenu_Model_Menu $item)
