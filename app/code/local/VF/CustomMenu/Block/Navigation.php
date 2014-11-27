@@ -61,6 +61,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $aKeys = array(
             'CATALOG_NAVIGATION',
+            (int)Mage::app()->getStore()->isCurrentlySecure(),
             Mage::app()->getStore()->getId(),
             Mage::getDesign()->getPackageName(),
             Mage::getDesign()->getTheme('template'),
