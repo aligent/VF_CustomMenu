@@ -72,15 +72,38 @@ class VF_CustomMenu_Model_Cron
         $existingRewrite = $this->getAttributeRewrite($requestPath, $storeId);
 
 
-        if (count($existingRewrite) > 0) {
+        $params = array();
+        $params[$attribute->getAttributeCode()] = $_option['value'];
+        $params['landing'] = 1;
+        $url = parse_url($rootCategory->getUrl());
+        // TODO get original URL instead
+        $targetPath = ltrim($url['path'], '/') . '?' . http_build_query($params);
 
-            $params = array();
-            $params[$attribute->getAttributeCode()] = $_option['value'];
-            $params['landing'] = 1;
-            $url = parse_url($rootCategory->getUrl());
-            $targetPath = $url['path'] . '?' . http_build_query($params);
+        $params = array(
+            $attribute->getAttributeCode() => $_option['value'],
+            'landing' => 1
+        );
+        if(is_null($rootCategory)) {
+            $catId = Mage::app()->getStore()->getRootCategoryId();
+        } else {
+            $catId = $rootCategory->getId();
+        }
+        $targetPath = 'catalog/category/view/id/' . $catId . '?' . http_build_query($params);
 
+
+        if ($existingRewrite === false) {
             $this->createRewrite($storeId, $requestPath, $targetPath);
+        } else {
+            // TODO check if rewrite needs to be updated
+            $redirects = Mage::getModel('enterprise_urlrewrite/redirect')->getCollection()
+                ->addFieldToFilter('identifier', $requestPath)
+                ->addFieldToFilter('store_id', $storeId);
+            foreach ($redirects as $redirect) {
+                $redirect->setTargetPath($targetPath);
+                $redirect->save();
+            }
+
+
         }
 
 
@@ -98,7 +121,7 @@ class VF_CustomMenu_Model_Cron
                 ->setDescription('Attribute landing rewrite');
 
             file_put_contents('/tmp/rewrites.log', var_export($redirect->getData(), true), FILE_APPEND);
-            //$redirect->save();
+            $redirect->save();
         } catch (Exception $e) {
             // TODO
         }
@@ -117,8 +140,10 @@ class VF_CustomMenu_Model_Cron
         if (!is_null($storeId)) {
             $select = $select->where('url_rewrite.store_id = ?', $storeId);
         }
+
+        $sel = (string) $select;
         // There should only be one rewrite
-        return $read->fetchOne($select);
+        return $read->fetchRow($select);
 
     }
 

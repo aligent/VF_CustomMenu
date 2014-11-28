@@ -60,9 +60,11 @@ class VF_CustomMenu_Model_Attribute_Url extends Varien_Object
      * @param $parentCat
      * @return string
      */
-    public function getAttributeUrl($attribute, $attVal, $parentCat)
+    public function getAttributeUrl($attribute, $attVal, $parentCat, $params = null)
     {
-        $params = array();
+        if(is_null($params)) {
+            $params = array();
+        }
         return $this->getUrl($attribute, $attVal, $parentCat, $params);
     }
 
@@ -116,22 +118,24 @@ class VF_CustomMenu_Model_Attribute_Url extends Varien_Object
 
         $this->getUrlInstance()->setStore($storeId);
 
-        $params[$attribute->getAttributeCode()] = $attVal['value'];
-        $params['landing'] = 1;
+        $extra = array(
+            $attribute->getAttributeCode() => $attVal['value'],
+            'landing' => 1
+        );
 
-        $requestPath = $this->_getAttributeUrl($parentCat, $storeId, $requestPath, $params);
+        $requestPath = $this->_getAttributeUrl($parentCat, $storeId, $requestPath, $params, $extra);
 
         return $requestPath;
 
     }
 
-    protected function _getAttributeUrl($parentCat, $storeId, $requestPath = null, $params = array()) {
+    protected function _getAttributeUrl($parentCat, $storeId, $requestPath = null, $params = array(), $extra) {
 
         if (!empty($requestPath)) {
-            return $this->getUrlInstance()->getDirectUrl($requestPath);
+            return $this->getUrlInstance()->getDirectUrl($requestPath, $params);
         }
         // If the request can't be handled by a URL rewrite, return the default path
-        return $parentCat->getUrl() . '?' . http_build_query($params);
+        return $parentCat->getUrl() . '?' . http_build_query($extra);
     }
 
     /**

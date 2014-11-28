@@ -308,9 +308,10 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                             if(Mage::helper('core')->isModuleEnabled('Enterprise_UrlRewrite')) {
                                 $urlModel = Mage::getModel('menu/attribute_enterprise_url');
                             } else {
+                                // TODO explain what needs to be done
                                 $urlModel = Mage::getModel('menu/attribute_url');
                             }
-                            $_option['href'] = $urlModel->getAttributeUrl($attribute, $_option, $rootCategory);
+                            $_option['href'] = $urlModel->getAttributeUrl($attribute, $_option, $rootCategory);// . '?' . http_build_query(array('landing' => 1));
                         }
 
                         $items[] = $_option;
