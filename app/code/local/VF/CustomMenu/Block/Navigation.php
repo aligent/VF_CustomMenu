@@ -77,8 +77,21 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         if(Mage::app()->getRequest()->getModuleName() == 'cms'){
             $aKeys[] = Mage::getSingleton('cms/page')->getIdentifier();
         }
-
+        $aKeys[] = $this->getUlId();
         return $aKeys;
+    }
+
+
+    /**
+     * Allow layout to override the ID of the primary navigation UL
+     *
+     * @return mixed|string
+     */
+    public function getUlId() {
+        if (!$this->getData('ul_id')) {
+            return 'nav';
+        }
+        return $this->getData('ul_id');
     }
 
     /**
