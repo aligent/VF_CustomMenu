@@ -284,6 +284,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $categories = $oParentCategory->getCategories($oParentCategory->getId(),null,'position',true,false);
             $iLevel = $oParentCategory->getLevel() + 1;
             $categories->addAttributeToFilter('level', $iLevel); //only retrieve immediate children of the selected category
+            $categories->addAttributeToFilter('is_active', 1);
+            $categories->addAttributeToFilter('include_in_menu', 1);
             $categories->load();
             $items = array();
             if(count($categories) === 0){
