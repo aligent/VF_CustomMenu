@@ -78,7 +78,7 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
 
         $fieldSet->addField('parent_id', 'select', array(
             'label'     => $this->__('Parent Menu'),
-            'class'     => 'required-entry',
+            'class'     => '',
             'required'  => false,
             'name'      => 'parent_id',
             'options'   => Mage::getModel('menu/source_menu')->getOptionArray()
