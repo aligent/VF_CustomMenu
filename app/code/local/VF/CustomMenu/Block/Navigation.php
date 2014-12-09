@@ -103,7 +103,10 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $collection = Mage::getModel('menu/menu')->getCollection()
             ->addStoreFilter()
-            ->addFieldToFilter('parent_id', array('null' => true))
+            ->addFieldToFilter('parent_id', array(
+                array('null' => true),
+                array('eq' => 0)
+            ))
             ->setOrder('position', 'asc');
         return $collection;
     }
