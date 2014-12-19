@@ -202,6 +202,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
     public function _getChildMenuItems(VF_CustomMenu_Model_Menu $item) {
         if ($this->_aAllChildMenuItems === null) {
+            $this->_aAllChildMenuItems = array();
             $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
 
             $oMenus = Mage::getModel('menu/menu')->getCollection()
