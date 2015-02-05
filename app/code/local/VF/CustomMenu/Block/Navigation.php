@@ -376,8 +376,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0, $iStaticBlockId = null, $aWidgets = null)
     {
         $block = '';
-        if (!empty($items)) {
-            $block .= "<div class='level-$iLevel-container'><ul class='level-$iLevel'>\n";
+        if (!empty($items) || $aWidgets) {
+            $sWidgetClass = empty($items) ? ' widgets-only' : '';
+            $block .= '<div class="level-' . $iLevel . '-container' . $sWidgetClass . '"><ul class="level-$iLevel">';
             $odd = false;
             $index = 0;
             $count = count($items);
@@ -463,9 +464,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     ->createBlock($sWidgetsBlock)
                     ->setTemplate($sWidgetsTemplate)
                     ->setWidgetIds($aWidgets)
-                    ->setUsedColumns(count($items));
+                    ->setUsedColumns(count($aWidgets));
 
-                $block .= '<li class="widgets used-' . count($items) . '">';
+                $block .= '<li class="widgets used-' . count($aWidgets) . '">';
                 $block .= $oNewBlock->toHtml();
                 $block .= '</li>';
             }
