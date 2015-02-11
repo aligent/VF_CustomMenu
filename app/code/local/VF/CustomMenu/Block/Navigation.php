@@ -376,7 +376,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0, $iStaticBlockId = null, $aWidgets = null)
     {
         $block = '';
-        if (!empty($items) || $aWidgets) {
+        if (!empty($items) || $aWidgets || $iStaticBlockId) {
             $sWidgetClass = empty($items) ? ' widgets-only' : '';
             $block .= '<div class="level-' . $iLevel . '-container' . $sWidgetClass . '"><ul class="level-$iLevel">';
             $odd = false;
