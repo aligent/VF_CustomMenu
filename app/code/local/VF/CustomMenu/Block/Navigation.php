@@ -378,7 +378,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         $block = '';
         if (!empty($items) || $aWidgets) {
             $sWidgetClass = empty($items) ? ' widgets-only' : '';
-            $block .= '<div class="level-' . $iLevel . '-container' . $sWidgetClass . '"><ul class="level-$iLevel">';
+            $block .= '<div class="level-' . $iLevel . '-container' . $sWidgetClass . '"><ul class="level-' . $iLevel . '">';
             $odd = false;
             $index = 0;
             $count = count($items);
