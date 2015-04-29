@@ -213,18 +213,21 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $vUrl = $this->getItemUrl($oMenu);
 
                 $this->_aAllChildMenuItems[$oMenu->getParentId()][] = array(
+                    'item_id'               => $oMenu->getId(),
                     'label'                 => $oMenu->getLabel(),
                     'href'                  => $vUrl,
                     'current'               => ($vCurrentUrl == $vUrl),
                     'has_children'          => true,
                     'is_attribute'          => false,
                     'disable_upper_links'   => $oMenu->getDisableUpperLinks(),
+                    'static_block_id'       => $oMenu->getStaticBlock()
                 );
             }
         }
 
-        if (array_key_exists($item->getId(), $this->_aAllChildMenuItems)) {
-            return $this->_aAllChildMenuItems[$item->getId()];
+        $iItemId = (int)$item->getId();
+        if ($iItemId !== 0 && array_key_exists($iItemId, $this->_aAllChildMenuItems)) {
+            return $this->_aAllChildMenuItems[$iItemId];
         } else {
             return array();
         }
@@ -395,6 +398,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                         $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
                     } elseif (isset($_item['children'])) {
                         $aChildItems = $_item['children'];
+                    } else {
+                        //Get children from menu configuration
+                        $aChildItems = $this->_getChildMenuItems(Mage::getModel('menu/menu')->setData($_item));
                     }
                 }
 
@@ -413,25 +419,33 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $odd ^= 1;
                 $class = ' class="level'.($iLevel).' '.$class.'"';
 
-                $block .= "<li>";
-                if (isset($_item['href']) && $_item['href'] &&
-                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
-                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
-                ) {
-                    $block .= "<a href=\"{$_item['href']}\">";
-                } else {
-                    $block .= "<span class=\"a-holder\">";
-                }
 
-                $block .= "<span>{$this->escapeHtml($_item['label'])}</span>";
-
-                if (isset($_item['href']) && $_item['href'] &&
-                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
-                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
-                ) {
-                    $block .= "</a>";
+                //If static block id is present, render the block instead of normal li text
+                if ($_item['static_block_id']) {
+                    $vStaticBlockHtml = $this->getLayout()->createBlock('cms/block')->setBlockId($_item['static_block_id'])->toHtml();
+                    $block .= '<li class="static-block">'.$vStaticBlockHtml;
                 } else {
-                    $block .= "</span>";
+
+                    $block .= "<li>";
+                    if (isset($_item['href']) && $_item['href'] &&
+                        (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
+                        (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                    ) {
+                        $block .= "<a href=\"{$_item['href']}\">";
+                    } else {
+                        $block .= "<span class=\"a-holder\">";
+                    }
+
+                    $block .= "<span>{$this->escapeHtml($_item['label'])}</span>";
+
+                    if (isset($_item['href']) && $_item['href'] &&
+                        (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
+                        (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                    ) {
+                        $block .= "</a>";
+                    } else {
+                        $block .= "</span>";
+                    }
                 }
 
                 if(count($aChildItems)){
