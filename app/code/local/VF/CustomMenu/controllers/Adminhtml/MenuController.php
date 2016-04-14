@@ -237,4 +237,8 @@ class VF_CustomMenu_Adminhtml_MenuController extends Mage_Adminhtml_Controller_A
 
         $this->_redirect('*/*/');
     }
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('cms/custom_menu');
+    }
 }

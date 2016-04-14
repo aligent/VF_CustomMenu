@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?php
 /**
- * Vladimir Fishchenko extension for Magento
+ * VF extension for Magento
+ *
+ * Add type column to menu table
  *
  * NOTICE OF LICENSE
  *
@@ -19,15 +20,21 @@
  *
  * @category   VF
  * @package    VF_CustomMenu
- * @copyright  Copyright (C) 2012 Vladimir Fishchenko (http://fishchenko.com)
+ * @author     Jonathan Day <jonathan@aligent.com.au>
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
--->
-<layout>
-    <default>
-        <reference name="header">
-            <block name="catalog.topnav" type="menu/navigation" as="topMenu" template="menu/navigation.phtml" />
-        </reference>
-    </default>
-</layout>
 
+/**
+ * @var $this Mage_Core_Model_Resource_Setup
+ */
+
+$installer = $this;
+$installer->startSetup();
+
+$installer->getConnection()->addColumn(
+    $installer->getTable('menu/menu'),
+    'additional_classes',
+    'varchar(255) null'
+);
+
+$installer->endSetup();

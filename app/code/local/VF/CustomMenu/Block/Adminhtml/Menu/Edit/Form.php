@@ -76,6 +76,14 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'name'      => 'label'
         ));
 
+        $fieldSet->addField('parent_id', 'select', array(
+            'label'     => $this->__('Parent Menu'),
+            'class'     => '',
+            'required'  => false,
+            'name'      => 'parent_id',
+            'options'   => Mage::getModel('menu/source_menu')->getOptionArray()
+        ));
+
         $fieldSet->addField('type', 'select', array(
             'label'     => $this->__('Type'),
             'class'     => 'required-entry',
@@ -109,6 +117,33 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'note'      => $this->__('If you select attribute, '
             . 'you will see dropdown with its values for layered navigation'),
             'values'    => Mage::getModel('menu/attribute')->getSourceAttributes()
+        ));
+
+        $fieldSet->addField('attribute_as_level_3', 'select', array(
+            'label'     => $this->__('Display Attribute Values as 3rd Level'),
+            'name'      => 'attribute_as_level_3',
+            'values'    => Mage::getSingleton('adminhtml/system_config_source_yesno')->toOptionArray(),
+            'note'      => $this->__(
+                    'Enable if you want attribute values to display as level 3 instead of 2 with custom level 2'
+                )
+        ));
+
+        $fieldSet->addField('attribute_level_2_name', 'text', array(
+            'label'     => $this->__('Attribute Level 2 Label'),
+            'name'      => 'attribute_level_2_name'
+        ));
+
+        $fieldSet->addField('attribute_level_2_url', 'text', array(
+            'label'     => $this->__('Attribute Level 2 Url'),
+            'name'      => 'attribute_level_2_url'
+        ));
+
+        $fieldSet->addField('additional_classes', 'text', array(
+            'label'     => $this->__('Additional Classes'),
+            'name'      => 'additional_classes',
+            'note'      => $this->__(
+                    'Add custom css classes here separated by a space'
+                )
         ));
 
 
@@ -161,6 +196,15 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Edit_Form extends Mage_Adminhtml_Block_
             'note'      => $this->__(
                 'For this item to have the \'current\' classname applied on a PDP, that product must be assigned ONLY to this category or its children'
             )
+        ));
+
+        $fieldSet->addField('disable_upper_links', 'select', array(
+            'label'     => $this->__('Disable Upper Links'),
+            'name'      => 'disable_upper_links',
+            'values'    => Mage::getSingleton('adminhtml/system_config_source_yesno')->toOptionArray(),
+            'note'      => $this->__(
+                    'Enable if you want only menu items at the deepest level to be links'
+                )
         ));
 
         $fieldSet->addField('static_block', 'select', array(

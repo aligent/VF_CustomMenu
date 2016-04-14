@@ -36,6 +36,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
     protected $iMaxRecursion = 1;
 
+    protected $_aAllChildMenuItems = null;
+
     protected function _construct()
     {
         $this->setRootCategoryId(Mage::app()->getStore()->getRootCategoryId());
@@ -59,6 +61,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $aKeys = array(
             'CATALOG_NAVIGATION',
+            (int)Mage::app()->getStore()->isCurrentlySecure(),
             Mage::app()->getStore()->getId(),
             Mage::getDesign()->getPackageName(),
             Mage::getDesign()->getTheme('template'),
@@ -74,8 +77,21 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         if(Mage::app()->getRequest()->getModuleName() == 'cms'){
             $aKeys[] = Mage::getSingleton('cms/page')->getIdentifier();
         }
-
+        $aKeys[] = $this->getUlId();
         return $aKeys;
+    }
+
+
+    /**
+     * Allow layout to override the ID of the primary navigation UL
+     *
+     * @return mixed|string
+     */
+    public function getUlId() {
+        if (!$this->getData('ul_id')) {
+            return 'nav';
+        }
+        return $this->getData('ul_id');
     }
 
     /**
@@ -87,6 +103,10 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         $collection = Mage::getModel('menu/menu')->getCollection()
             ->addStoreFilter()
+            ->addFieldToFilter('parent_id', array(
+                array('null' => true),
+                array('eq' => 0)
+            ))
             ->setOrder('position', 'asc');
         return $collection;
     }
@@ -121,6 +141,10 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     return Mage::getBaseUrl() . $item->getCmsPage()->getIdentifier();
                 }
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
+                if ($url) {
+                    if ($url === '/') $url = '';
+                    return Mage::getBaseUrl() . $url;
+                }
                 return 'javascript:;';
             default:
                 return $url;
@@ -138,19 +162,35 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     {
         if (!$item->hasData('dynamic_block')) {
             $block = '';
-            $items = array();
+            $items = $this->_getChildMenuItems($item);
             switch ($item->getType()) {
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
-                    $items = $this->_getAttributeValueItems($item);
+                    if ($item->getData('attribute_as_level_3') == '1') {
+                        $children = $this->_getAttributeValueItems($item);
+                        $items = array_merge($items, array(
+                            array(
+                                'label'                 => $item->getData('attribute_level_2_name'),
+                                'href'                  => $item->getData('attribute_level_2_url'),
+                                'current'               => false,
+                                'has_children'          => true,
+                                'children'              => $children,
+                                'is_attribute'          => true,
+                                'disable_upper_links'   => $item->getData('disable_upper_links'),
+                            )
+                        ));
+                    } else {
+                        $items = array_merge($items, $this->_getAttributeValueItems($item));
+                    }
+
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
                     if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = $this->_getPageItems($item);
+                        $items = array_merge($items, $this->_getPageItems($item));
                     }
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
                     if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = $this->_getCategoryItems($item);
+                        $items = array_merge($items, $this->_getCategoryItems($item));
                     }
                     break;
             }
@@ -158,6 +198,36 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $item->setData('dynamic_block', $block);
         }
         return $item->getData('dynamic_block');
+    }
+
+    public function _getChildMenuItems(VF_CustomMenu_Model_Menu $item) {
+        if ($this->_aAllChildMenuItems === null) {
+            $this->_aAllChildMenuItems = array();
+            $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
+
+            $oMenus = Mage::getModel('menu/menu')->getCollection()
+                ->addFieldToFilter('parent_id', array('notnull' => true))
+                ->setOrder('position', VF_CustomMenu_Model_Resource_Menu_Collection::SORT_ORDER_ASC);
+
+            foreach ($oMenus as $oMenu) {
+                $vUrl = $this->getItemUrl($oMenu);
+
+                $this->_aAllChildMenuItems[$oMenu->getParentId()][] = array(
+                    'label'                 => $oMenu->getLabel(),
+                    'href'                  => $vUrl,
+                    'current'               => ($vCurrentUrl == $vUrl),
+                    'has_children'          => true,
+                    'is_attribute'          => false,
+                    'disable_upper_links'   => $oMenu->getDisableUpperLinks(),
+                );
+            }
+        }
+
+        if (array_key_exists($item->getId(), $this->_aAllChildMenuItems)) {
+            return $this->_aAllChildMenuItems[$item->getId()];
+        } else {
+            return array();
+        }
     }
 
     public function _getPageItems(VF_CustomMenu_Model_Menu $item)
@@ -219,6 +289,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $categories = $oParentCategory->getCategories($oParentCategory->getId(),null,'position',true,false);
             $iLevel = $oParentCategory->getLevel() + 1;
             $categories->addAttributeToFilter('level', $iLevel); //only retrieve immediate children of the selected category
+            $categories->addAttributeToFilter('is_active', 1);
+            $categories->addAttributeToFilter('include_in_menu', 1);
             $categories->load();
             $items = array();
             if(count($categories) === 0){
@@ -239,6 +311,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     'current' => $bIsCurrent,
                     'has_children' => $oChildCategory->hasChildren()?'true':'',
                     'default_category' => $oChildCategory->getId(),
+                    'disable_upper_links'   => $item->getData('disable_upper_links'),
                 );
             }
         }
@@ -287,7 +360,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                         } else {
                             $href = $rootCategory->getUrl() . '?' . http_build_query($params['_query']);
                         }
-                        $_option['href'] = $href;
+                        $_option['href'] = $href . '&landing=1';
 
                         $items[] = $_option;
                     }
@@ -307,14 +380,29 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     protected function _getDynamicBlockList($items, $itemNumber, $iLevel=0, $iStaticBlockId = null, $aWidgets = null)
     {
         $block = '';
-        if (!empty($items)) {
-            $block .= '<div class="expand-sub-menu"></div>';
-            $block .= "<div class='level-$iLevel-container'><ul class='level-$iLevel'>\n";
+
+        if (!empty($items) || $aWidgets || $iStaticBlockId) {
+            $sWidgetClass = empty($items) ? ' widgets-only' : '';
+            $block .= '<div class="level-' . $iLevel . '-container' . $sWidgetClass . '"><ul class="level-' . $iLevel . '">';
             $odd = false;
             $index = 0;
             $count = count($items);
             foreach ($items as $_item) {
                 ++$index;
+                $aChildItems = array();
+
+                if($this->getRecursionLevel()>$iLevel+1 && !empty($_item['has_children']))
+                {
+                    if(isset($_item['default_category'])){
+                        $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
+                    }
+                    elseif(isset($_item['cms_page_id'])){
+                        $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
+                    } elseif (isset($_item['children'])) {
+                        $aChildItems = $_item['children'];
+                    }
+                }
+
                 $class = ($odd) ? 'odd' : 'even';
                 if ($itemNumber) {
                     $class .= ' nav-' . $itemNumber . '-' . $index;
@@ -330,21 +418,35 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $odd ^= 1;
                 $class = ' class="level'.($iLevel).' '.$class.'"';
 
-                $block .= "<li><a href=\"{$_item['href']}\"><span>{$this->escapeHtml($_item['label'])}</span></a>";
+                $block .= "<li>";
+                if (isset($_item['href']) && $_item['href'] &&
+                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
+                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                ) {
+                    $block .= "<a href=\"{$_item['href']}\">";
+                } else {
+                    $block .= "<span class=\"a-holder\">";
+                }
 
-                if($this->getRecursionLevel()>$iLevel+1 && !empty($_item['has_children']))
-                {
-                    $aChildItems = array();
-                    if(isset($_item['default_category'])){
-                        $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
-                    }
-                    elseif(isset($_item['cms_page_id'])){
-                        $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
+                $block .= "<span>{$this->escapeHtml($_item['label'])}</span>";
+
+                if (isset($_item['href']) && $_item['href'] &&
+                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
+                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                ) {
+                    $block .= "</a>";
+                } else {
+                    $block .= "</span>";
+                }
+
+                if(count($aChildItems)){
+                    if (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1') {
+                        foreach ($aChildItems as &$aChildItem) {
+                            $aChildItem['disable_upper_links'] = '1';
+                        }
                     }
 
-                    if(count($aChildItems)){
-                        $block .=  $this->_getDynamicBlockList($aChildItems, $itemNumber. '-' . $index, $iLevel + 1);
-                    }
+                    $block .=  $this->_getDynamicBlockList($aChildItems, $itemNumber. '-' . $index, $iLevel + 1);
                 }
 
                 $block .= "</li>";
@@ -367,9 +469,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     ->createBlock($sWidgetsBlock)
                     ->setTemplate($sWidgetsTemplate)
                     ->setWidgetIds($aWidgets)
-                    ->setUsedColumns(count($items));
+                    ->setUsedColumns(count($aWidgets));
 
-                $block .= '<li class="widgets used-' . count($items) . '">';
+                $block .= '<li class="widgets used-' . count($aWidgets) . '">';
                 $block .= $oNewBlock->toHtml();
                 $block .= '</li>';
             }
