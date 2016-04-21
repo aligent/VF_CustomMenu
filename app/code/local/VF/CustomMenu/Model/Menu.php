@@ -30,6 +30,7 @@
  * @method string getTitle
  * @method string getLabel
  * @method string getStoreId
+ * @method string getStaticBlock
  *
  * @category   VF
  * @package    VF_CustomMenu
@@ -79,5 +80,20 @@ class VF_CustomMenu_Model_Menu extends Mage_Core_Model_Abstract
             $this->setData('category_object', $category);
         }
         return $this->getData('category_object');
+    }
+
+    /**
+     * @return Mage_Cms_Model_Page
+     */
+    public function getCmsPage()
+    {
+        if (!$this->hasData('cms_page_object')) {
+            $oPage = Mage::getModel('cms/page');
+            if ($this->getCmsPageId()) {
+                $oPage->load($this->getCmsPageId());
+            }
+            $this->setData('cms_page_object', $oPage);
+        }
+        return $this->getData('cms_page_object');
     }
 }

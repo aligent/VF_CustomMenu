@@ -57,8 +57,14 @@ class VF_CustomMenu_Model_Resource_Menu_Collection extends Mage_Core_Model_Mysql
                 $store = $store->getId();
             }
 
-            $this->getSelect()
-                ->where('main_table.store_id in (?)', array(0, $store));
+            $aStores = array();
+            $aColumns = array();
+            foreach (array(0, $store) as $storeId) {
+                $aColumns[] = 'store_id';
+                $aStores[] = array('finset' => $storeId);
+            }
+
+            $this->addFieldToFilter($aColumns, $aStores);
 
             return $this;
         }

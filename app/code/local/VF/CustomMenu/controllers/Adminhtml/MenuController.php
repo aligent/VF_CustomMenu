@@ -69,6 +69,7 @@ class VF_CustomMenu_Adminhtml_MenuController extends Mage_Adminhtml_Controller_A
         if ($menuId) {
             $model = Mage::getModel('menu/menu')->load($menuId);
             if ($model->getId()) {
+                $model->setStoreId(explode(',', $model->getStoreId()));
                 $data = Mage::getSingleton('adminhtml/session')->getFormData(true);
                 if ($data) {
                     $model->setData($data)->setId($menuId);
@@ -120,6 +121,14 @@ class VF_CustomMenu_Adminhtml_MenuController extends Mage_Adminhtml_Controller_A
             $this->_getSession()->setFormData($data);
 
             try {
+                if (isset($data['store_id']) && is_array($data['store_id'])) {
+                    $data['store_id'] = implode(',', $data['store_id']);
+                }
+
+                if (isset($data['widgets']) && is_array($data['widgets'])) {
+                    $data['widgets'] = implode(',', $data['widgets']);
+                }
+
                 $model->setData($data);
 
                 if ($menuId) {
@@ -227,5 +236,9 @@ class VF_CustomMenu_Adminhtml_MenuController extends Mage_Adminhtml_Controller_A
         }
 
         $this->_redirect('*/*/');
+    }
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('cms/custom_menu');
     }
 }

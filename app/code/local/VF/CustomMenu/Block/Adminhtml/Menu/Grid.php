@@ -72,6 +72,14 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Grid extends Mage_Adminhtml_Block_Widge
             'index'     => 'item_id'
         ));
 
+        $this->addColumn('parent_id', array(
+            'header'    => $this->__('Parent Id'),
+            'align'     => 'right',
+            'width'     => '50px',
+            'type'      => 'int',
+            'index'     => 'parent_id'
+        ));
+
         $this->addColumn('store_id', array(
             'header'    => $this->__('Store'),
             'align'     =>'left',
