@@ -166,11 +166,11 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             switch ($item->getType()) {
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                     $aAttributeChildItems = $this->_getAttributeValueItems($item);
-                    if ($item->getAttributeAsLevel3() == '1') {
+                    if ($item->getAttributeAsLevel_3() == '1') {
                         $aChildItems = array_merge($aChildItems, array(
                             array(
-                                'label'                 => $item->getAttributeLevel2Name(),
-                                'href'                  => $item->getAttributeLevel2Url(),
+                                'label'                 => $item->getAttributeLevel_2Name(),
+                                'href'                  => $item->getAttributeLevel_2Url(),
                                 'current'               => false,
                                 'has_children'          => true,
                                 'children'              => $aAttributeChildItems,
@@ -200,31 +200,31 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         return $item->getDynamicBlock();
     }
 
-    public function _getChildMenuItems(VF_CustomMenu_Model_Menu $item) {
+    protected function _getChildMenuItems(VF_CustomMenu_Model_Menu $oParentItem) {
         if ($this->_aAllChildMenuItems === null) {
             $this->_aAllChildMenuItems = array();
             $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
 
-            $oMenus = Mage::getModel('menu/menu')->getCollection()
-                ->addFieldToFilter('parent_id', array('notnull' => true))
+            $oChildItems = Mage::getModel('menu/menu')->getCollection()
+                ->addFieldToFilter('parent_id', array('neq' => 0))
                 ->setOrder('position', VF_CustomMenu_Model_Resource_Menu_Collection::SORT_ORDER_ASC);
 
-            foreach ($oMenus as $oMenu) {
-                $vUrl = $this->getItemUrl($oMenu);
+            foreach ($oChildItems as $oChildItem) {
+                $vUrl = $this->getItemUrl($oChildItem);
 
-                $this->_aAllChildMenuItems[$oMenu->getParentId()][] = array(
-                    'label'                 => $oMenu->getLabel(),
+                $this->_aAllChildMenuItems[$oChildItem->getParentId()][] = array(
+                    'label'                 => $oChildItem->getLabel(),
                     'href'                  => $vUrl,
                     'current'               => ($vCurrentUrl == $vUrl),
                     'has_children'          => true,
                     'is_attribute'          => false,
-                    'disable_upper_links'   => $oMenu->getDisableUpperLinks(),
+                    'disable_upper_links'   => $oChildItem->getDisableUpperLinks(),
                 );
             }
         }
 
-        if (array_key_exists($item->getId(), $this->_aAllChildMenuItems)) {
-            return $this->_aAllChildMenuItems[$item->getId()];
+        if (array_key_exists($oParentItem->getId(), $this->_aAllChildMenuItems)) {
+            return $this->_aAllChildMenuItems[$oParentItem->getId()];
         } else {
             return array();
         }
