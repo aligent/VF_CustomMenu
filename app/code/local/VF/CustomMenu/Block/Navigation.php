@@ -319,6 +319,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
      *
      * @param VF_CustomMenu_Model_Menu $item
      * @return array
+     * @throws Mage_Core_Exception
      */
     protected function _getAttributeValueItems(VF_CustomMenu_Model_Menu $item)
     {
@@ -330,9 +331,21 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
 
             /** @var $indexAttribute Mage_CatalogIndex_Model_Attribute */
             $indexAttribute = Mage::getSingleton('catalogindex/attribute');
+            
             /** @var $rootCategory Mage_Catalog_Model_Category */
-            $rootCategory = Mage::getModel('catalog/category')->load($item->getDefaultCategoryId());
-            $entityFilter = $rootCategory->getProductCollection()->getSelect()->distinct();
+            $rootCategory = Mage::getModel('catalog/category')
+                ->setStoreId(Mage::app()->getStore()->getId())
+                ->load($item->getDefaultCategoryId());
+
+            /** @var $productCollection Mage_Catalog_Model_Resource_Product_Collection */
+            $productCollection = $rootCategory->getProductCollection()
+                ->addAttributeToFilter('status', array('eq' => Mage_Catalog_Model_Product_Status::STATUS_ENABLED))
+                ->addFieldToFilter('visibility', array(Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH));
+
+            $entityFilter = $productCollection
+                ->getSelect()
+                ->distinct();
+
             $activeOptions = array_keys($indexAttribute->getCount($attribute, $entityFilter));
             if ($attribute->usesSource()) {
                 $allOptions = $attribute->getSource()->getAllOptions(false);
@@ -391,7 +404,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     if(isset($_item['default_category'])){
                         $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
                     }
-                    elseif(isset($_item['cms_page_id'])){
+                    elseif(isset($_item['cms_page_id'])) {
                         $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
                     } elseif (isset($_item['children'])) {
                         $aChildItems = $_item['children'];
