@@ -160,44 +160,44 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
      */
     public function getDynamicBlock(VF_CustomMenu_Model_Menu $item, $itemNumber = null)
     {
-        if (!$item->hasData('dynamic_block')) {
-            $block = '';
-            $items = $this->_getChildMenuItems($item);
+        if (!$item->hasDynamicBlock()) {
+            $vHtml = '';
+            $aChildItems = $this->_getChildMenuItems($item);
             switch ($item->getType()) {
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
-                    if ($item->getData('attribute_as_level_3') == '1') {
-                        $children = $this->_getAttributeValueItems($item);
-                        $items = array_merge($items, array(
+                    $aAttributeChildItems = $this->_getAttributeValueItems($item);
+                    if ($item->getAttributeAsLevel3() == '1') {
+                        $aChildItems = array_merge($aChildItems, array(
                             array(
-                                'label'                 => $item->getData('attribute_level_2_name'),
-                                'href'                  => $item->getData('attribute_level_2_url'),
+                                'label'                 => $item->getAttributeLevel2Name(),
+                                'href'                  => $item->getAttributeLevel2Url(),
                                 'current'               => false,
                                 'has_children'          => true,
-                                'children'              => $children,
+                                'children'              => $aAttributeChildItems,
                                 'is_attribute'          => true,
-                                'disable_upper_links'   => $item->getData('disable_upper_links'),
+                                'disable_upper_links'   => $item->getDisableUpperLinks(),
                             )
                         ));
                     } else {
-                        $items = array_merge($items, $this->_getAttributeValueItems($item));
+                        $aChildItems = array_merge($aChildItems, $aAttributeChildItems);
                     }
 
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
-                    if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = array_merge($items, $this->_getPageItems($item));
+                    if ($item->getShowChildren() && !$item->getDynamicBlock()) {
+                        $aChildItems = array_merge($aChildItems, $this->_getPageItems($item));
                     }
                     break;
                 case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
-                    if ($item->getShowChildren() && !$item->getData('dynamic_block')) {
-                        $items = array_merge($items, $this->_getCategoryItems($item));
+                    if ($item->getShowChildren() && !$item->getDynamicBlock()) {
+                        $aChildItems = array_merge($aChildItems, $this->_getCategoryItems($item));
                     }
                     break;
             }
-            $block = $this->_getDynamicBlockList($items, $itemNumber, 1, $item->getStaticBlock(), $item->getWidgets());
-            $item->setData('dynamic_block', $block);
+            $vHtml = $this->_getDynamicBlockList($aChildItems, $itemNumber, 1, $item->getStaticBlock(), $item->getWidgets());
+            $item->setDynamicBlock($vHtml);
         }
-        return $item->getData('dynamic_block');
+        return $item->getDynamicBlock();
     }
 
     public function _getChildMenuItems(VF_CustomMenu_Model_Menu $item) {
