@@ -33,6 +33,8 @@ function customMenuUpdateFields(type) {
         case 4: //attribute values
             $('url').up('tr').show();
             $('url').removeClassName('required-entry');
+            $('default_category').up('tr').show();
+            $('default_category').addClassName('required-entry');
             $('cms_page_id').up('tr').hide();
             $('cms_page_id').removeClassName('required-entry');
             $('source_attribute').up('tr').show();
