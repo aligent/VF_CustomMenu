@@ -403,7 +403,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $odd = false;
             $index = 0;
             $count = count($items);
-            foreach ($items as $_item) {
+            foreach ($items as $aItem) {
                 ++$index;
                 $aChildItems = array();
 
@@ -428,27 +428,27 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 } elseif ($index == $count) {
                     $class .= ' last';
                 }
-                if(isset($_item['current']) && $_item['current'] == true){
+                if(isset($aItem['current']) && $aItem['current'] == true){
                     $class .= ' current';
                 }
                 $odd ^= 1;
                 $class = ' class="level'.($iLevel).' '.$class.'"';
 
                 $block .= "<li>";
-                if (isset($_item['href']) && $_item['href'] &&
-                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
-                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                if (isset($aItem['href']) && $aItem['href'] &&
+                    (!isset($aItem['disable_upper_links']) || $aItem['disable_upper_links'] == '0') ||
+                    (isset($aItem['disable_upper_links']) && $aItem['disable_upper_links'] == '1' && !count($aChildItems))
                 ) {
-                    $block .= "<a href=\"{$_item['href']}\">";
+                    $block .= "<a href=\"{$aItem['href']}\">";
                 } else {
                     $block .= "<span class=\"a-holder\">";
                 }
 
-                $block .= "<span>{$this->escapeHtml($_item['label'])}</span>";
+                $block .= "<span>{$this->escapeHtml($aItem['label'])}</span>";
 
-                if (isset($_item['href']) && $_item['href'] &&
-                    (!isset($_item['disable_upper_links']) || $_item['disable_upper_links'] == '0') ||
-                    (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1' && !count($aChildItems))
+                if (isset($aItem['href']) && $aItem['href'] &&
+                    (!isset($aItem['disable_upper_links']) || $aItem['disable_upper_links'] == '0') ||
+                    (isset($aItem['disable_upper_links']) && $aItem['disable_upper_links'] == '1' && !count($aChildItems))
                 ) {
                     $block .= "</a>";
                 } else {
@@ -456,7 +456,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 }
 
                 if(count($aChildItems)){
-                    if (isset($_item['disable_upper_links']) && $_item['disable_upper_links'] == '1') {
+                    if (isset($aItem['disable_upper_links']) && $aItem['disable_upper_links'] == '1') {
                         foreach ($aChildItems as &$aChildItem) {
                             $aChildItem['disable_upper_links'] = '1';
                         }
