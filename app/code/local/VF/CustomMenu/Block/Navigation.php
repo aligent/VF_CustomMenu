@@ -407,15 +407,24 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 ++$index;
                 $aChildItems = array();
 
-                if($this->getRecursionLevel()>$iLevel+1 && !empty($_item['has_children']))
-                {
-                    if(isset($_item['default_category'])){
-                        $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($_item));
+                if($this->getRecursionLevel()>$iLevel+1 && !empty($aItem['has_children'])) {
+                    // TODO: DRY this out.  Don't understand why child menus are different to parents.
+                    if (isset($aItem['type'])) {
+                        switch ($aItem['type']) {
+                            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
+                                $aChildItems = $this->_getAttributeValueItems(Mage::getModel('menu/menu')->setData($aItem));
+                                break;
+                            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
+                                $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($aItem));
+                                break;
+                            case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
+                                $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($aItem));
+                                break;
+                        }
                     }
-                    elseif(isset($_item['cms_page_id'])) {
-                        $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($_item));
-                    } elseif (isset($_item['children'])) {
-                        $aChildItems = $_item['children'];
+
+                    if (isset($aItem['children'])) {
+                        $aChildItems = array_merge($aChildItems, $aItem['children']);
                     }
                 }
 
