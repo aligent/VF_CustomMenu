@@ -197,7 +197,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             $vHtml = $this->_getDynamicBlockList($aChildItems, $itemNumber, 1, $item->getStaticBlock(), $item->getWidgets());
             $item->setDynamicBlock($vHtml);
         }
-        return $item->getDynamicBlock();
+        return $item->getData('dynamic_block');
     }
 
     protected function _getChildMenuItems(VF_CustomMenu_Model_Menu $oParentItem) {
@@ -212,14 +212,22 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             foreach ($oChildItems as $oChildItem) {
                 $vUrl = $this->getItemUrl($oChildItem);
 
-                $this->_aAllChildMenuItems[$oChildItem->getParentId()][] = array(
-                    'label'                 => $oChildItem->getLabel(),
-                    'href'                  => $vUrl,
-                    'current'               => ($vCurrentUrl == $vUrl),
-                    'has_children'          => true,
-                    'is_attribute'          => false,
-                    'disable_upper_links'   => $oChildItem->getDisableUpperLinks(),
-                );
+                // Don't understand why we don't just use the model object here, but
+                // everything seems oriented around this array structure so it's hard
+                // to change it now.  But half the time when the array is used it's
+                // turned back into the model object anyway, so IDK.  What we'll do for
+                // now is make sure the array contains all of the fields from the
+                // original model instead.
+                //
+                // TODO: Refactor to just pass the model object around and use it
+                // everywhere.
+                $this->_aAllChildMenuItems[$oChildItem->getParentId()][] =
+                    $oChildItem
+                        ->setHref($vUrl)
+                        ->setCurrent($vCurrentUrl == $vUrl)
+                        ->setHasChildren(true)
+                        ->setIsAttribute(false)
+                        ->getData();;
             }
         }
 
