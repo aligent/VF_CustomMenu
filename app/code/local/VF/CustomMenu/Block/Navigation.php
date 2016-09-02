@@ -437,8 +437,14 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                         }
                     }
 
+                    // TODO: Why are top level menus special little snowflakes with
+                    // children explicitly set, while everything else has_children=true
+                    // whether or not there are actually children and we have to go
+                    // find them?
                     if (isset($aItem['children'])) {
                         $aChildItems = array_merge($aChildItems, $aItem['children']);
+                    } else {
+                        $aChildItems = array_merge($aChildItems, $this->_getChildMenuItems($oMenuItem));
                     }
                 }
 
