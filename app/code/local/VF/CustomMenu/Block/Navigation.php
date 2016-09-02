@@ -461,9 +461,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = ' class="level'.($iLevel).' '.$class.'"';
+                $class = ' class="level'.($iLevel).' '.$class.' '.$aItem['additional_classes'].'"';
 
-                $block .= "<li>";
+                $block .= "<li $class>";
                 if (isset($aItem['href']) && $aItem['href'] &&
                     (!isset($aItem['disable_upper_links']) || $aItem['disable_upper_links'] == '0') ||
                     (isset($aItem['disable_upper_links']) && $aItem['disable_upper_links'] == '1' && !count($aChildItems))
