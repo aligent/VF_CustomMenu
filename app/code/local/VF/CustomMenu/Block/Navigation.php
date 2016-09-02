@@ -417,17 +417,22 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $aChildItems = array();
 
                 if($this->getRecursionLevel()>$iLevel+1 && !empty($aItem['has_children'])) {
+                    // TODO: Why do we take model objects, flatten them to an array,
+                    // then convert them back to model objects all the time?  This
+                    // makes little to no sense.
+                    $oMenuItem = Mage::getModel('menu/menu')->setData($aItem);
+
                     // TODO: DRY this out.  Don't understand why child menus are different to parents.
                     if (isset($aItem['type'])) {
                         switch ($aItem['type']) {
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
-                                $aChildItems = $this->_getAttributeValueItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getAttributeValueItems($oMenuItem);
                                 break;
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
-                                $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getPageItems($oMenuItem);
                                 break;
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
-                                $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getCategoryItems($oMenuItem);
                                 break;
                         }
                     }
