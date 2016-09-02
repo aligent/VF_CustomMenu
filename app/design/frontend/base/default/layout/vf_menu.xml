@@ -26,7 +26,9 @@
 <layout>
     <default>
         <reference name="header">
-            <block name="catalog.topnav" type="menu/navigation" as="topMenu" template="menu/navigation.phtml" />
+            <block name="catalog.topnav" type="menu/navigation" as="topMenu" template="menu/navigation.phtml">
+                <action method="setRecursionLevel"><levels>3</levels></action>
+            </block>
         </reference>
     </default>
 </layout>
