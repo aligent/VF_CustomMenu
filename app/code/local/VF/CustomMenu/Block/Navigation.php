@@ -423,8 +423,8 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $oMenuItem = Mage::getModel('menu/menu')->setData($aItem);
 
                     // TODO: DRY this out.  Don't understand why child menus are different to parents.
-                    if (isset($aItem['type'])) {
-                        switch ($aItem['type']) {
+                    if ($oMenuItem->hasType() && $oMenuItem->getShowChildren()) {
+                        switch ($oMenuItem->getType()) {
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
                                 $aChildItems = $this->_getAttributeValueItems($oMenuItem);
                                 break;
@@ -461,7 +461,12 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = ' class="level'.($iLevel).' '.$class.' '.$aItem['additional_classes'].'"';
+
+                if (isset($aItem['additional_classes'])) {
+                    $class .= ' ' . $aItem['additional_classes'];
+                }
+
+                $class = ' class="level'.($iLevel).' '.$class.'"';;
 
                 $block .= "<li $class>";
                 if (isset($aItem['href']) && $aItem['href'] &&
