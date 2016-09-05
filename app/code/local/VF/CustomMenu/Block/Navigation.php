@@ -245,9 +245,18 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
         /** @var Mage_Cms_Model_Page $oParentPage */
         $oParentPage = Mage::getModel('cms/page')->load($item->getCmsPageId());
         if($oParentPage->getId() && $oParentPage->getIsActive()){
-            $cChildPages = $oParentPage->getChildren()
-                ->addFieldToFilter('is_active', array('eq' => 1))
-                ->addFieldToFilter('include_in_menu', array('eq' => 1));
+            $cChildPages = $oParentPage->getChildren();
+
+            // Prevent this function from fataling if JR_CleverCms isn't installed.
+            // ->getChildren() returns null without CleverCms (Varien_Object magic
+            // method) so calling ->addFieldToFilter fails.
+            if ($cChildPages != null) {
+                $cChildPages->addFieldToFilter('is_active', array('eq' => 1))
+                    ->addFieldToFilter('include_in_menu', array('eq' => 1));
+            }  else {
+                $cChildPages = array();
+            }
+
             if(count($cChildPages)){
                 $vCurrentUrl = Mage::helper('core/url')->getCurrentUrl();
                 foreach($cChildPages as $oChildPage){
@@ -408,23 +417,34 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 $aChildItems = array();
 
                 if($this->getRecursionLevel()>$iLevel+1 && !empty($aItem['has_children'])) {
+                    // TODO: Why do we take model objects, flatten them to an array,
+                    // then convert them back to model objects all the time?  This
+                    // makes little to no sense.
+                    $oMenuItem = Mage::getModel('menu/menu')->setData($aItem);
+
                     // TODO: DRY this out.  Don't understand why child menus are different to parents.
-                    if (isset($aItem['type'])) {
-                        switch ($aItem['type']) {
+                    if ($oMenuItem->hasType() && $oMenuItem->getShowChildren()) {
+                        switch ($oMenuItem->getType()) {
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::ATTRIBUTE:
-                                $aChildItems = $this->_getAttributeValueItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getAttributeValueItems($oMenuItem);
                                 break;
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CMS_PAGE:
-                                $aChildItems = $this->_getPageItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getPageItems($oMenuItem);
                                 break;
                             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
-                                $aChildItems = $this->_getCategoryItems(Mage::getModel('menu/menu')->setData($aItem));
+                                $aChildItems = $this->_getCategoryItems($oMenuItem);
                                 break;
                         }
                     }
 
+                    // TODO: Why are top level menus special little snowflakes with
+                    // children explicitly set, while everything else has_children=true
+                    // whether or not there are actually children and we have to go
+                    // find them?
                     if (isset($aItem['children'])) {
                         $aChildItems = array_merge($aChildItems, $aItem['children']);
+                    } else {
+                        $aChildItems = array_merge($aChildItems, $this->_getChildMenuItems($oMenuItem));
                     }
                 }
 
@@ -441,9 +461,14 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                     $class .= ' current';
                 }
                 $odd ^= 1;
-                $class = ' class="level'.($iLevel).' '.$class.'"';
 
-                $block .= "<li>";
+                if (isset($aItem['additional_classes'])) {
+                    $class .= ' ' . $aItem['additional_classes'];
+                }
+
+                $class = ' class="level'.($iLevel).' '.$class.'"';;
+
+                $block .= "<li $class>";
                 if (isset($aItem['href']) && $aItem['href'] &&
                     (!isset($aItem['disable_upper_links']) || $aItem['disable_upper_links'] == '0') ||
                     (isset($aItem['disable_upper_links']) && $aItem['disable_upper_links'] == '1' && !count($aChildItems))

@@ -27,7 +27,7 @@
 <config>
     <modules>
         <VF_CustomMenu>
-            <version>0.4.7</version>
+            <version>0.4.8</version>
         </VF_CustomMenu>
     </modules>
     <global>

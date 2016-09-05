@@ -32,13 +32,12 @@
 $_menu = $this->getMenuItems();
 $_count = count($_menu);
 $i = 0;
-$this->setRecursionLevel(3);
 ?>
 <?php if($_menu): ?>
 <div class="nav-container">
     <ul id="<?php echo $this->getUlId() ?>">
         <?php foreach ($_menu as $_menuItem): ?>
-        <?php $additionalClass = ++$i == 1 ? ' first' : (($i == $_count) ? ' last' : '') ?>
+        <?php $additionalClass = (++$i == 1 ? ' first' : (($i == $_count) ? ' last' : '')) . $_menuItem->getAdditionalClasses() ?>
         <li class="level0 level-top nav-<?php echo $i . $additionalClass ?>">
             <a
                     title="<?php echo $this->escapeHtml($_menuItem->getTitle()) ?>"
