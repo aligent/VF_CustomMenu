@@ -108,7 +108,8 @@ class VF_CustomMenu_Block_Adminhtml_Menu_Grid extends Mage_Adminhtml_Block_Widge
             'header'    => $this->__('Info'),
             'align'     => 'left',
             'index'     => 'info',
-            'renderer'  => 'VF_CustomMenu_Block_Adminhtml_Menu_Grid_Renderer_Info'
+            'renderer'  => 'VF_CustomMenu_Block_Adminhtml_Menu_Grid_Renderer_Info',
+            'sortable'  => false,
         ));
 
         $this->addColumn('position', array(
