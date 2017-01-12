@@ -52,13 +52,14 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             ),
         ));
 
-        $this->getCategoryUrls();
+        $this->loadCategoryUrlsFromCache();
     }
 
     /**
-     * Generate the dynamic category URL's and cache them.
+     * Find all category menu items who don't have a specified URL and are therefore using the default category URL.
+     * Load all of the categories and generate their urls, storing them in an array and cache them for next time.
      */
-    protected function getCategoryUrls() {
+    protected function loadCategoryUrlsFromCache() {
         $cacheKey = 'VF_CustomMenu_CategoryUrls_'.Mage::app()->getStore()->getStoreId();
 
         // Check cache
