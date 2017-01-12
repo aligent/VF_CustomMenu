@@ -37,6 +37,7 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
     protected $iMaxRecursion = 1;
 
     protected $_aAllChildMenuItems = null;
+    protected $_aCategoryUrls = null;
 
     protected function _construct()
     {
@@ -50,6 +51,71 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
                 VF_CustomMenu_Model_Menu::CACHE_TAG
             ),
         ));
+
+        $this->loadCategoryUrlsFromCache();
+    }
+
+    /**
+     * Find all category menu items who don't have a specified URL and are therefore using the default category URL.
+     * Load all of the categories and generate their urls, storing them in an array and cache them for next time.
+     */
+    protected function loadCategoryUrlsFromCache() {
+        $cacheKey = 'VF_CustomMenu_CategoryUrls_'.Mage::app()->getStore()->getStoreId();
+
+        // Check cache
+        if (false === ($cached = Mage::app()->getCache()->load($cacheKey))) {
+            $aCacheTags = array(
+                Mage_Catalog_Model_Category::CACHE_TAG,
+                Mage_Core_Model_Store_Group::CACHE_TAG,
+                VF_CustomMenu_Model_Menu::CACHE_TAG
+            );
+
+            // Load all category menu items that have a dynamic URL.
+            $oCategoryMenuItems = Mage::getModel('menu/menu')->getCollection()
+                ->addFieldToSelect(array('item_id', 'default_category'))
+                ->addFieldToFilter('type', array('eq' => VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY))
+                ->addFieldToFilter('url', array('eq' => null));
+            $oCategoryItems = $oCategoryMenuItems->getItems();
+
+            // Retrieve the default categories as array for SQL.
+            $aMenuCategories = array();
+            foreach ($oCategoryItems as $key => $item) {
+                $default_category = $item->getData('default_category');
+                $aMenuCategories[$key] = $default_category;
+
+                // Add each category to the cache tags.
+                $aCacheTags[] = Mage_Catalog_Model_Category::CACHE_TAG . '_' . $default_category;
+            }
+
+            // Load all categories
+            $oCategoriesCollection = Mage::getModel('catalog/category')->getCollection()
+                ->addAttributeToFilter('entity_id', array('in' => $aMenuCategories));
+            $oCategories = $oCategoriesCollection->getItems();
+
+            // Loop over category menu items and store the URL from the newly loaded categories.
+            $this->_aCategoryUrls = array();
+            $defaultUrl = Mage::getBaseUrl();
+            foreach ($aMenuCategories as $menuItem => $default_category) {
+                $url = $defaultUrl;
+                if (isset($oCategories[$default_category])) {
+                    $url = $oCategories[$default_category]->getUrl();
+                }
+                $this->_aCategoryUrls[$menuItem] = $url;
+            }
+
+            // Save to cache
+            Mage::app()->getCache()->save(
+                serialize($this->_aCategoryUrls),
+                $cacheKey,
+                $aCacheTags,
+                86400);
+
+            // unload the temp data.
+            unset($aMenuCategories);
+            unset($oCategories);
+        } else {
+            $this->_aCategoryUrls = unserialize($cached);
+        }
     }
 
     /**
@@ -129,6 +195,9 @@ class VF_CustomMenu_Block_Navigation extends Mage_Core_Block_Template
             case VF_CustomMenu_Model_Resource_Menu_Attribute_Source_Type::CATEGORY:
                 if($url){
                     return Mage::getBaseUrl() . $url; // allow override of category URL
+                }
+                if(isset($this->_aCategoryUrls[$item->getId()])) {
+                    return $this->_aCategoryUrls[$item->getId()];
                 }
                 if($item->getCategory()->getId() == $this->getRootCategoryId()){
                     return Mage::getBaseUrl();
